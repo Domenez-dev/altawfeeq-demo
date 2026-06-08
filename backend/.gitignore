@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+altawfeeq.db
+uploads/*
+!uploads/.gitkeep

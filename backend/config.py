@@ -1,0 +1,27 @@
+"""Application configuration and settings."""
+import os
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+
+# Database
+DATABASE_URL = f"sqlite:///{BASE_DIR / 'altawfeeq.db'}"
+
+# Uploaded audio storage
+UPLOADS_DIR = BASE_DIR / "uploads"
+UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+
+# JWT auth settings
+SECRET_KEY = os.environ.get("ALTAWFEEQ_SECRET_KEY", "dev-secret-key-change-in-production-please")
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # one week, convenient for an MVP/prototype
+
+# API metadata
+API_TITLE = "التوفيق (Al-Tawfeeq) API"
+API_DESCRIPTION = (
+    "Backend API for التوفيق — a voice-based Alzheimer's screening tool. "
+    "Analyzes sustained vowel recordings using Praat to extract acoustic "
+    "biomarkers (F0, jitter, shimmer, intensity, duration) and produces a "
+    "composite vocal health score with Arabic feedback."
+)
+API_VERSION = "0.1.0"
