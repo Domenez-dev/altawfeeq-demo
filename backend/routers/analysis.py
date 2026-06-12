@@ -54,6 +54,8 @@ _ALLOWED_CONTENT_TYPE_PREFIXES = ("audio/", "video/")  # some devices tag m4a as
                     "examples": {
                         "invalid_format": {"value": {"detail": "تعذر قراءة الملف الصوتي", "code": "INVALID_FORMAT"}},
                         "audio_too_short": {"value": {"detail": "التسجيل قصير جداً، يرجى المحاولة مجدداً", "code": "AUDIO_TOO_SHORT"}},
+                        "audio_no_voice": {"value": {"detail": "لم نسمع صوتاً واضحاً. اقترب من الميكروفون وكرّر النطق بصوت أعلى في مكان هادئ.", "code": "AUDIO_NO_VOICE"}},
+                        "audio_unstable": {"value": {"detail": "الصوت غير مستقر بما يكفي للتحليل. أطِل نطق الحرف بثبات مثل \"آآآ\" دون تغيير النبرة.", "code": "AUDIO_UNSTABLE"}},
                         "audio_quality_poor": {"value": {"detail": "جودة التسجيل غير كافية للتحليل", "code": "AUDIO_QUALITY_POOR"}},
                         "praat_failed": {"value": {"detail": "فشل تحليل الصوت", "code": "PRAAT_ANALYSIS_FAILED"}},
                     }
@@ -105,9 +107,24 @@ async def analyze_recording(
             detail={"detail": "التسجيل قصير جداً، يرجى المحاولة مجدداً", "code": "AUDIO_TOO_SHORT"},
         ) from exc
     except AudioQualityError as exc:
+        # Map the specific failure mode to an actionable Arabic message so the
+        # user knows *what* to fix, instead of a single generic "poor quality".
+        quality_messages = {
+            "no_voice": (
+                "لم نسمع صوتاً واضحاً. اقترب من الميكروفون وكرّر النطق بصوت أعلى في مكان هادئ.",
+                "AUDIO_NO_VOICE",
+            ),
+            "unstable": (
+                "الصوت غير مستقر بما يكفي للتحليل. أطِل نطق الحرف بثبات مثل \"آآآ\" دون تغيير النبرة.",
+                "AUDIO_UNSTABLE",
+            ),
+        }
+        detail_text, error_code = quality_messages.get(
+            exc.reason, ("جودة التسجيل غير كافية للتحليل", "AUDIO_QUALITY_POOR")
+        )
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail={"detail": "جودة التسجيل غير كافية للتحليل", "code": "AUDIO_QUALITY_POOR"},
+            detail={"detail": detail_text, "code": error_code},
         ) from exc
     except PraatAnalysisError as exc:
         raise HTTPException(

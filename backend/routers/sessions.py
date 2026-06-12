@@ -1,18 +1,22 @@
-"""Session history endpoints — list, latest, and detail."""
+"""Session history endpoints — list, latest, detail, and deletion."""
 from datetime import datetime, timezone
+from pathlib import Path
 import math
 import random
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy import desc
 from sqlalchemy.orm import Session as DBSession
 
+from config import UPLOADS_DIR
 from database import get_db
 from models.session import CLASSIFICATION_LABELS_AR, Session
 from models.user import User
 from schemas.home import HomeIndicator
 from schemas.session import (
     CreateSessionRequest,
+    DeleteSessionsRequest,
+    DeleteSessionsResponse,
     FrontendSessionResponse,
     SessionListResponse,
     SessionResponse,
@@ -67,6 +71,25 @@ def _to_frontend_session(s: Session) -> FrontendSessionResponse:
         overall_percent=s.overall_score / 100.0,
         indicators=indicators,
     )
+
+
+def _delete_audio_files(session: Session) -> None:
+    """Best-effort removal of a session's uploaded + converted audio files.
+
+    The analyze endpoint stores the original upload as ``audio_filename`` and
+    ffmpeg writes a sibling ``<stem>-converted.wav``; remove both if present.
+    Never raises — a missing/locked file must not block the DB deletion.
+    """
+    name = session.audio_filename
+    if not name:
+        return
+    stem = Path(name).stem
+    for candidate in (UPLOADS_DIR / name, UPLOADS_DIR / f"{stem}-converted.wav"):
+        try:
+            if candidate.is_file():
+                candidate.unlink()
+        except OSError:
+            pass
 
 
 def _to_response(session: Session) -> SessionResponse:
@@ -211,6 +234,64 @@ def create_session(
         overall_percent=session.overall_score / 100.0,
         indicators=indicators,
     )
+
+
+@router.post(
+    "/delete",
+    response_model=DeleteSessionsResponse,
+    summary="Delete several of the current user's sessions at once",
+    description="Bulk-deletes the sessions whose IDs are provided and belong to the current user.",
+)
+def delete_sessions(
+    payload: DeleteSessionsRequest,
+    current_user: User = Depends(get_current_user),
+    db: DBSession = Depends(get_db),
+) -> DeleteSessionsResponse:
+    if not payload.ids:
+        return DeleteSessionsResponse(deleted=0)
+
+    sessions = (
+        db.query(Session)
+        .filter(Session.user_id == current_user.id, Session.id.in_(payload.ids))
+        .all()
+    )
+
+    for session in sessions:
+        _delete_audio_files(session)
+        db.delete(session)
+
+    db.commit()
+    return DeleteSessionsResponse(deleted=len(sessions))
+
+
+@router.delete(
+    "/{session_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a single session",
+    description="Deletes one session belonging to the current user, plus its stored audio files.",
+    responses={404: {"description": "Session not found or does not belong to the current user"}},
+)
+def delete_session(
+    session_id: int,
+    current_user: User = Depends(get_current_user),
+    db: DBSession = Depends(get_db),
+) -> Response:
+    session = (
+        db.query(Session)
+        .filter(Session.id == session_id, Session.user_id == current_user.id)
+        .first()
+    )
+
+    if session is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"detail": "الجلسة غير موجودة", "code": "SESSION_NOT_FOUND"},
+        )
+
+    _delete_audio_files(session)
+    db.delete(session)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.get(
