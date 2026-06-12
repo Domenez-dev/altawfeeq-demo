@@ -26,7 +26,19 @@ class PraatAnalysisError(Exception):
 
 
 class AudioQualityError(Exception):
-    """Raised when the recording is too noisy/unstable for Praat to extract reliable features."""
+    """Raised when the recording is too noisy/unstable for Praat to extract reliable features.
+
+    `reason` distinguishes the failure mode so the API can return a specific,
+    actionable Arabic message instead of one generic "poor quality" error:
+      - "no_voice": no detectable voiced pitch at all (too quiet / whisper /
+        background noise only / wrong or muted microphone input).
+      - "unstable": voice is present but too irregular for Praat to compute the
+        cycle-to-cycle perturbation measures (jitter/shimmer).
+    """
+
+    def __init__(self, message: str, *, reason: str = "quality") -> None:
+        self.reason = reason
+        super().__init__(message)
 
 
 class AudioTooShortError(Exception):
@@ -184,7 +196,10 @@ def extract_features(wav_path: Path) -> AcousticFeatures:
         frequencies = pitch.selected_array["frequency"]
         voiced_frequencies = frequencies[frequencies > 0]  # drop unvoiced frames
         if voiced_frequencies.size == 0:
-            raise AudioQualityError("No voiced frames detected — recording may be too quiet or noisy.")
+            raise AudioQualityError(
+                "No voiced frames detected — recording may be too quiet or noisy.",
+                reason="no_voice",
+            )
         f0_hz = float(np.mean(voiced_frequencies))
 
         # --- Jitter & shimmer (require a PointProcess derived from the
@@ -202,9 +217,15 @@ def extract_features(wav_path: Path) -> AcousticFeatures:
         )
 
         if jitter_local is None or (isinstance(jitter_local, float) and np.isnan(jitter_local)):
-            raise AudioQualityError("Praat could not compute jitter — signal too irregular/noisy.")
+            raise AudioQualityError(
+                "Praat could not compute jitter — signal too irregular/noisy.",
+                reason="unstable",
+            )
         if shimmer_local is None or (isinstance(shimmer_local, float) and np.isnan(shimmer_local)):
-            raise AudioQualityError("Praat could not compute shimmer — signal too irregular/noisy.")
+            raise AudioQualityError(
+                "Praat could not compute shimmer — signal too irregular/noisy.",
+                reason="unstable",
+            )
 
         jitter_percent = float(jitter_local) * 100.0
         shimmer_percent = float(shimmer_local) * 100.0

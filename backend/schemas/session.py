@@ -112,6 +112,14 @@ class CreateSessionRequest(BaseModel):
     duration_seconds: int
 
 
+class DeleteSessionsRequest(BaseModel):
+    ids: list[int] = Field(..., description="IDs of the sessions to delete in bulk")
+
+
+class DeleteSessionsResponse(BaseModel):
+    deleted: int = Field(..., description="Number of sessions actually deleted")
+
+
 class SessionResultResponse(BaseModel):
     session_id: int
     date: str

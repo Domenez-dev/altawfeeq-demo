@@ -12,7 +12,12 @@ from database import get_db
 from models.user import User
 
 _pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-_bearer_scheme = HTTPBearer(description="Paste the JWT returned by POST /api/auth/login")
+# auto_error=False → a missing/invalid Authorization header does NOT raise; this
+# is an open single-user prototype, so we fall back to the only user instead.
+_bearer_scheme = HTTPBearer(
+    auto_error=False,
+    description="Optional in this prototype — falls back to the single seed user.",
+)
 
 
 def hash_password(plain_password: str) -> str:
@@ -30,29 +35,35 @@ def create_access_token(*, subject: str) -> str:
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
-_CREDENTIALS_ERROR = HTTPException(
-    status_code=status.HTTP_401_UNAUTHORIZED,
-    detail={"detail": "تعذر التحقق من بيانات الاعتماد", "code": "INVALID_CREDENTIALS"},
-    headers={"WWW-Authenticate": "Bearer"},
+_NO_USER_ERROR = HTTPException(
+    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+    detail={"detail": "لا يوجد مستخدم مُهيّأ، شغّل seed.py", "code": "NO_USER"},
 )
 
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(_bearer_scheme),
+    credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
     db: DBSession = Depends(get_db),
 ) -> User:
-    """FastAPI dependency: decode the bearer token and load the matching user."""
-    token = credentials.credentials
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email = payload.get("sub")
-        if email is None:
-            raise _CREDENTIALS_ERROR
-    except JWTError as exc:
-        raise _CREDENTIALS_ERROR from exc
+    """Resolve the current user.
 
-    user = db.query(User).filter(User.email == email).first()
+    Open single-user prototype: if a valid bearer token is supplied we honour it,
+    but a missing or invalid token is fine too — we simply fall back to the only
+    (first) user in the database. This means the API never returns 401, so the
+    app "just opens". The single failure mode is an unseeded database (503).
+    """
+    if credentials is not None:
+        try:
+            payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+            email = payload.get("sub")
+            if email:
+                user = db.query(User).filter(User.email == email).first()
+                if user is not None:
+                    return user
+        except JWTError:
+            pass  # ignore a bad token and fall back to the prototype user
+
+    user = db.query(User).order_by(User.id).first()
     if user is None:
-        raise _CREDENTIALS_ERROR
-
+        raise _NO_USER_ERROR
     return user
