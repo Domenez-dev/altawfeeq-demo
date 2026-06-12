@@ -159,7 +159,7 @@ class _HomeContent extends StatelessWidget {
                   ],
                 ),
                 CircularPercentIndicator(
-                  radius: 80.0,
+                  radius: 92.0,
                   lineWidth: 8.0,
                   percent: data.todayProgress,
                   center: Text(
