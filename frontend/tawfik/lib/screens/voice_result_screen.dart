@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import '../models/api/models.dart';
 import '../providers/voice_test_provider.dart';
 import '../utils/indicator_helpers.dart';
+import '../widgets/recording_player.dart';
 import 'indicator_details_screen.dart';
 
 class VoiceResultScreen extends ConsumerWidget {
@@ -12,6 +13,7 @@ class VoiceResultScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final result = ref.watch(lastSessionResultProvider);
+    final recordingPath = ref.watch(lastRecordingPathProvider);
 
     if (result == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -72,6 +74,11 @@ class VoiceResultScreen extends ConsumerWidget {
                 '${(result.overallPercent * 100).toInt()}%',
                 style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: AppTheme.primaryPurple, fontFamily: 'IBMPlexSansArabic'),
               ),
+
+              if (recordingPath != null) ...[
+                const SizedBox(height: 20),
+                RecordingPlayer(path: recordingPath),
+              ],
 
               const SizedBox(height: 32),
 

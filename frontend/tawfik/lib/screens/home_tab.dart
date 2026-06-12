@@ -5,6 +5,7 @@ import '../theme/app_theme.dart';
 import '../models/api/models.dart';
 import '../providers/home_provider.dart';
 import '../utils/indicator_helpers.dart';
+import '../widgets/error_retry.dart';
 
 class HomeTab extends ConsumerWidget {
   const HomeTab({super.key});
@@ -18,10 +19,7 @@ class HomeTab extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppTheme.background,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.menu_rounded, color: AppTheme.textPrimary),
-          onPressed: () {},
-        ),
+        automaticallyImplyLeading: false,
         title: const Text(
           'الرئيسية',
           style: TextStyle(
@@ -41,12 +39,7 @@ class HomeTab extends ConsumerWidget {
       ),
       body: homeAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(
-          child: Text(
-            'حدث خطأ: $e',
-            style: const TextStyle(fontFamily: 'IBMPlexSansArabic', color: AppTheme.error),
-          ),
-        ),
+        error: (e, _) => ErrorRetryView(error: e, onRetry: () => ref.invalidate(homeDataProvider)),
         data: (data) => _HomeContent(data: data),
       ),
     );

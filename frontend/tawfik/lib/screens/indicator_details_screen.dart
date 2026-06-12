@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../theme/app_theme.dart';
 import '../providers/indicator_detail_provider.dart';
 import '../utils/indicator_helpers.dart';
+import '../widgets/error_retry.dart';
 
 class IndicatorDetailsScreen extends ConsumerWidget {
   const IndicatorDetailsScreen({super.key});
@@ -65,8 +66,9 @@ class IndicatorDetailsScreen extends ConsumerWidget {
 
                     detailAsync.when(
                       loading: () => const SizedBox(height: 200, child: Center(child: CircularProgressIndicator())),
-                      error: (e, _) => Center(
-                        child: Text('حدث خطأ: $e', style: const TextStyle(color: AppTheme.error, fontFamily: 'IBMPlexSansArabic')),
+                      error: (e, _) => SizedBox(
+                        height: 260,
+                        child: ErrorRetryView(error: e, onRetry: () => ref.invalidate(indicatorDetailProvider)),
                       ),
                       data: (detail) => Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

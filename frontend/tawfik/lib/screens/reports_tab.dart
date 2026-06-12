@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../theme/app_theme.dart';
 import '../models/api/models.dart';
 import '../providers/reports_provider.dart';
+import '../widgets/error_retry.dart';
 
 class ReportsTab extends ConsumerWidget {
   const ReportsTab({super.key});
@@ -76,8 +77,9 @@ class ReportsTab extends ConsumerWidget {
 
             reportAsync.when(
               loading: () => const SizedBox(height: 200, child: Center(child: CircularProgressIndicator())),
-              error: (e, _) => Center(
-                child: Text('حدث خطأ: $e', style: const TextStyle(color: AppTheme.error, fontFamily: 'IBMPlexSansArabic')),
+              error: (e, _) => SizedBox(
+                height: 280,
+                child: ErrorRetryView(error: e, onRetry: () => ref.invalidate(reportProvider)),
               ),
               data: (report) => _ReportContent(report: report),
             ),

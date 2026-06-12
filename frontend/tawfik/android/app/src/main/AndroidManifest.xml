@@ -1,8 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- تسجيل الصوت من الميكروفون -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <!-- الوصول إلى الـ backend عبر الشبكة -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="التوفيق"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true"><!-- يسمح بـ HTTP (غير المشفّر) نحو خادم التطوير على الشبكة المحلية -->
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/app_theme.dart';
 import '../providers/profile_provider.dart';
+import '../widgets/error_retry.dart';
+import 'more_screens.dart';
+import 'splash_screen.dart';
 
 class ProfileTab extends ConsumerWidget {
   const ProfileTab({super.key});
@@ -18,14 +21,15 @@ class ProfileTab extends ConsumerWidget {
         title: const Text('الملف الشخصي', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20)),
         centerTitle: true,
         actions: [
-          IconButton(icon: const Icon(Icons.settings_outlined, color: AppTheme.textPrimary), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.settings_outlined, color: AppTheme.textPrimary),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AppSettingsScreen())),
+          ),
         ],
       ),
       body: profileAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(
-          child: Text('حدث خطأ: $e', style: const TextStyle(color: AppTheme.error, fontFamily: 'IBMPlexSansArabic')),
-        ),
+        error: (e, _) => ErrorRetryView(error: e, onRetry: () => ref.invalidate(profileProvider)),
         data: (profile) => SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Column(
@@ -63,7 +67,13 @@ class ProfileTab extends ConsumerWidget {
                         ],
                       ),
                     ),
-                    IconButton(icon: const Icon(Icons.edit_outlined, color: AppTheme.textSecondary), onPressed: () {}),
+                    IconButton(
+                      icon: const Icon(Icons.edit_outlined, color: AppTheme.textSecondary),
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => EditProfileScreen(name: profile.name, email: profile.email)),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -80,17 +90,42 @@ class ProfileTab extends ConsumerWidget {
                 ),
                 child: Column(
                   children: [
-                    _MenuItem(icon: Icons.track_changes_outlined, title: 'الهدف العلاجي'),
+                    _MenuItem(
+                      icon: Icons.track_changes_outlined,
+                      title: 'الهدف العلاجي',
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TherapeuticGoalScreen())),
+                    ),
                     const Divider(height: 1, indent: 56, endIndent: 16),
-                    _MenuItem(icon: Icons.bar_chart_outlined, title: 'المؤشرات الصوتية'),
+                    _MenuItem(
+                      icon: Icons.bar_chart_outlined,
+                      title: 'المؤشرات الصوتية',
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const VocalIndicatorsInfoScreen())),
+                    ),
                     const Divider(height: 1, indent: 56, endIndent: 16),
-                    _MenuItem(icon: Icons.notifications_active_outlined, title: 'تذكيرات الجلسات', trailingText: 'مفعل'),
+                    _MenuItem(
+                      icon: Icons.notifications_active_outlined,
+                      title: 'تذكيرات الجلسات',
+                      trailingText: 'مفعل',
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SessionRemindersScreen())),
+                    ),
                     const Divider(height: 1, indent: 56, endIndent: 16),
-                    _MenuItem(icon: Icons.settings_outlined, title: 'الإعدادات'),
+                    _MenuItem(
+                      icon: Icons.settings_outlined,
+                      title: 'الإعدادات',
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AppSettingsScreen())),
+                    ),
                     const Divider(height: 1, indent: 56, endIndent: 16),
-                    _MenuItem(icon: Icons.help_outline_rounded, title: 'مساعدة'),
+                    _MenuItem(
+                      icon: Icons.help_outline_rounded,
+                      title: 'مساعدة',
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpScreen())),
+                    ),
                     const Divider(height: 1, indent: 56, endIndent: 16),
-                    _MenuItem(icon: Icons.info_outline_rounded, title: 'حول التطبيق'),
+                    _MenuItem(
+                      icon: Icons.info_outline_rounded,
+                      title: 'حول التطبيق',
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutScreen())),
+                    ),
                   ],
                 ),
               ),
@@ -98,7 +133,7 @@ class ProfileTab extends ConsumerWidget {
               const SizedBox(height: 32),
 
               TextButton(
-                onPressed: () {},
+                onPressed: () => _confirmLogout(context),
                 child: const Text('تسجيل الخروج', style: TextStyle(color: AppTheme.error, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic')),
               ),
 
@@ -111,11 +146,39 @@ class ProfileTab extends ConsumerWidget {
   }
 }
 
+Future<void> _confirmLogout(BuildContext context) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: const Text('تسجيل الخروج', style: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.bold)),
+      content: const Text('هل تريد تسجيل الخروج من التطبيق؟', style: TextStyle(fontFamily: 'IBMPlexSansArabic')),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: const Text('إلغاء', style: TextStyle(fontFamily: 'IBMPlexSansArabic', color: AppTheme.textSecondary)),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          child: const Text('خروج', style: TextStyle(fontFamily: 'IBMPlexSansArabic', color: AppTheme.error, fontWeight: FontWeight.bold)),
+        ),
+      ],
+    ),
+  );
+  if (confirmed != true || !context.mounted) return;
+  Navigator.of(context).pushAndRemoveUntil(
+    MaterialPageRoute(builder: (_) => const SplashScreen()),
+    (route) => false,
+  );
+}
+
 class _MenuItem extends StatelessWidget {
   final IconData icon;
   final String title;
   final String? trailingText;
-  const _MenuItem({required this.icon, required this.title, this.trailingText});
+  final VoidCallback? onTap;
+  const _MenuItem({required this.icon, required this.title, this.trailingText, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +199,7 @@ class _MenuItem extends StatelessWidget {
           Icon(Icons.arrow_forward_ios_rounded, color: AppTheme.textSecondary, size: 16),
         ],
       ),
-      onTap: () {},
+      onTap: onTap,
     );
   }
 }

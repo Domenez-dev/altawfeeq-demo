@@ -1,12 +1,34 @@
 import 'package:dio/dio.dart';
 import '../models/api/models.dart';
 
+/// خطأ يُرفع عند فشل تحليل التسجيل الصوتي في الخادم.
+///
+/// يحمل الرسالة العربية القادمة من الـ backend ({detail, code}) حتى تستطيع
+/// الواجهة عرضها للمستخدم مباشرةً (مثلاً: "التسجيل قصير جداً").
+class AnalysisException implements Exception {
+  final String message;
+  final String? code;
+  const AnalysisException(this.message, [this.code]);
+
+  @override
+  String toString() => 'AnalysisException($code): $message';
+}
+
 class ApiService {
-  static const String baseUrl = 'http://localhost:8000/api';
+  /// عنوان الـ backend. قابل للضبط وقت التشغيل عبر --dart-define حتى لا نُعدّل
+  /// الكود لكل جهاز:
+  ///   - سطح مكتب Linux / محاكي مع adb reverse → القيمة الافتراضية (localhost).
+  ///   - هاتف حقيقي → مرّر عنوان الـ LAN، مثلاً:
+  ///       flutter run --dart-define=API_BASE_URL=http://10.69.154.8:8000/api
+  static const String baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'http://localhost:8000/api',
+  );
 
   final Dio _dio;
-  String? _token;
 
+  // نموذج أوّلي بمستخدم واحد: الخادم مفتوح ولا يتطلّب مصادقة، لذا لا حاجة
+  // لتسجيل دخول أو توكن — نُجري النداءات مباشرةً.
   ApiService()
       : _dio = Dio(
           BaseOptions(
@@ -15,43 +37,7 @@ class ApiService {
             receiveTimeout: const Duration(seconds: 10),
             headers: {'Content-Type': 'application/json'},
           ),
-        ) {
-    _dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) async {
-          // If we are not logging in, and we don't have a token, do auto-login
-          if (options.path != '/auth/login' && _token == null) {
-            await _loginWithSeedCredentials();
-          }
-          if (_token != null) {
-            options.headers['Authorization'] = 'Bearer $_token';
-          }
-          return handler.next(options);
-        },
-      ),
-    );
-  }
-
-  Future<void> _loginWithSeedCredentials() async {
-    try {
-      // Create a separate Dio instance to avoid recursive calls in request interceptor
-      final loginDio = Dio(
-        BaseOptions(
-          baseUrl: baseUrl,
-          connectTimeout: const Duration(seconds: 5),
-          receiveTimeout: const Duration(seconds: 5),
-          headers: {'Content-Type': 'application/json'},
-        ),
-      );
-      final res = await loginDio.post('/auth/login', data: {
-        'email': 'mohamed@altawfeeq.dz',
-        'password': 'password123',
-      });
-      _token = res.data['access_token'] as String;
-    } catch (e) {
-      print('Auto-login with seed credentials failed: $e');
-    }
-  }
+        );
 
   // ─── Home ─────────────────────────────────────────────────────────────────
 
@@ -69,6 +55,18 @@ class ApiService {
         .toList();
   }
 
+  // ─── Delete sessions ──────────────────────────────────────────────────────
+
+  Future<void> deleteSession(int id) async {
+    await _dio.delete('/sessions/$id');
+  }
+
+  /// حذف عدة جلسات دفعةً واحدة. يُعيد عدد الجلسات المحذوفة فعلاً.
+  Future<int> deleteSessions(List<int> ids) async {
+    final res = await _dio.post('/sessions/delete', data: {'ids': ids});
+    return (res.data['deleted'] as num).toInt();
+  }
+
   // ─── Submit session (enregistrement terminé) ──────────────────────────────
 
   Future<SessionResult> submitSession(String indicatorName, int durationSeconds) async {
@@ -77,6 +75,75 @@ class ApiService {
       'duration_seconds': durationSeconds,
     });
     return SessionResult.fromJson(res.data as Map<String, dynamic>);
+  }
+
+  // ─── Analyze a real recording ─────────────────────────────────────────────
+
+  static const _monthsAr = {
+    1: 'جانفي', 2: 'فيفري', 3: 'مارس', 4: 'أفريل', 5: 'ماي', 6: 'جوان',
+    7: 'جويلية', 8: 'أوت', 9: 'سبتمبر', 10: 'أكتوبر', 11: 'نوفمبر', 12: 'ديسمبر',
+  };
+
+  String _statusFor(double score) =>
+      score >= 70.0 ? 'جيد' : score >= 40.0 ? 'متوسط' : 'ضعيف';
+
+  /// يرفع ملف التسجيل (WAV) إلى نقطة /analysis/analyze التي تشغّل تحليل Praat
+  /// الحقيقي، تحفظ الجلسة في قاعدة البيانات، وتُرجع المؤشرات الصوتية الفعلية.
+  ///
+  /// تُعيد [SessionResult] مبنية من النتيجة السريرية ليعرضها شاشة النتيجة، وبما
+  /// أن الخادم يحفظ الجلسة فإنها تظهر تلقائياً في التحليل اليومي/الأسبوعي والسجل.
+  ///
+  /// ترفع [AnalysisException] برسالة عربية إذا رفض الخادم التسجيل (قصير جداً،
+  /// جودة ضعيفة، صيغة غير مدعومة...).
+  Future<SessionResult> analyzeRecording(String filePath) async {
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(
+        filePath,
+        filename: 'recording.wav',
+        contentType: DioMediaType('audio', 'wav'),
+      ),
+    });
+
+    try {
+      final res = await _dio.post(
+        '/analysis/analyze',
+        data: formData,
+        // التحليل أبطأ من بقية الطلبات (ffmpeg + Praat)، نمنحه مهلة أطول.
+        options: Options(receiveTimeout: const Duration(seconds: 60)),
+      );
+
+      final json = res.data as Map<String, dynamic>;
+      double score(String key) => (json[key] as num).toDouble();
+
+      final recordedAt = DateTime.parse(json['recorded_at'] as String).toLocal();
+      final month = _monthsAr[recordedAt.month] ?? '';
+      final date = '${recordedAt.year} - $month ${recordedAt.day.toString().padLeft(2, '0')}';
+
+      final indicators = [
+        ('شدة الصوت', score('intensity_score')),
+        ('المدة', score('duration_score')),
+        ('الطبقة الصوتية', score('f0_score')),
+        ('الاضطراب (Jitter)', score('jitter_score')),
+      ].map((e) => IndicatorResult(
+            name: e.$1,
+            percent: e.$2 / 100.0,
+            status: _statusFor(e.$2),
+          )).toList();
+
+      return SessionResult(
+        sessionId: json['id'] as int,
+        date: date,
+        overallPercent: score('overall_score') / 100.0,
+        indicators: indicators,
+      );
+    } on DioException catch (e) {
+      // الخادم يُرجع {detail, code} على الأخطاء 422؛ نمررها كرسالة عربية.
+      final data = e.response?.data;
+      if (data is Map && data['detail'] is String) {
+        throw AnalysisException(data['detail'] as String, data['code'] as String?);
+      }
+      throw const AnalysisException('تعذّر الاتصال بالخادم لتحليل التسجيل');
+    }
   }
 
   // ─── Indicator detail ─────────────────────────────────────────────────────

@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/app_theme.dart';
 import '../providers/voice_test_provider.dart';
+import '../providers/home_provider.dart';
+import '../providers/sessions_provider.dart';
+import '../providers/reports_provider.dart';
 import '../utils/indicator_helpers.dart';
 import 'voice_result_screen.dart';
 
@@ -56,7 +59,7 @@ class VoiceTestScreen extends ConsumerWidget {
                 ),
               ),
 
-              // Jauge arc
+              // Recording indicator (progress vers une durée confortable, pas un score)
               Expanded(
                 flex: 5,
                 child: Center(
@@ -68,24 +71,25 @@ class VoiceTestScreen extends ConsumerWidget {
                       children: [
                         CustomPaint(
                           size: const Size(200, 200),
-                          painter: _ArcGaugePainter(progress: state.currentPercent),
+                          painter: _ArcGaugePainter(progress: state.recordingProgress),
                         ),
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
-                              '${(state.currentPercent * 100).toInt()}%',
-                              style: const TextStyle(
-                                fontSize: 48,
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.primaryPurple,
-                                fontFamily: 'IBMPlexSansArabic',
-                                height: 1.0,
-                              ),
+                            Icon(
+                              state.isRecording ? Icons.mic_rounded : Icons.mic_none_rounded,
+                              size: 56,
+                              color: AppTheme.primaryPurple,
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 8),
                             Text(
-                              state.currentStatus,
+                              state.isSubmitting
+                                  ? 'جارٍ التحليل...'
+                                  : state.isRecording
+                                      ? 'جارٍ التسجيل'
+                                      : state.isPaused
+                                          ? 'متوقف مؤقتاً'
+                                          : 'جاهز',
                               style: const TextStyle(fontSize: 18, color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w600),
                             ),
                           ],
@@ -96,7 +100,8 @@ class VoiceTestScreen extends ConsumerWidget {
                 ),
               ),
 
-              // Waveform
+              // Live VU meter — bars react to the actual microphone input level,
+              // so the user can see that the mic is picking up their voice.
               SizedBox(
                 height: 44,
                 child: Row(
@@ -105,14 +110,21 @@ class VoiceTestScreen extends ConsumerWidget {
                   children: List.generate(36, (index) {
                     final mid = 17.5;
                     final dist = (index - mid).abs() / mid;
-                    final h = 7.0 + (1 - dist) * 32.0;
-                    final active = index < 20;
-                    return Container(
+                    // شكل جرسي: الأعمدة الوسطى تتفاعل بقوة أكبر مع مستوى الصوت.
+                    final level = state.isRecording
+                        ? (state.inputLevel * (1.0 - dist * 0.5)).clamp(0.0, 1.0)
+                        : 0.0;
+                    final h = 6.0 + level * 34.0;
+                    final active = level > 0.06;
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 90),
                       margin: const EdgeInsets.symmetric(horizontal: 1.5),
                       width: 3,
                       height: h,
                       decoration: BoxDecoration(
-                        color: active ? AppTheme.primaryPurple.withOpacity(0.7 - dist * 0.2) : AppTheme.primaryPurple.withOpacity(0.15),
+                        color: active
+                            ? AppTheme.primaryPurple.withOpacity(0.75 - dist * 0.2)
+                            : AppTheme.primaryPurple.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     );
@@ -141,6 +153,33 @@ class VoiceTestScreen extends ConsumerWidget {
                 style: const TextStyle(fontSize: 14, color: AppTheme.primaryPurple, fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w500),
               ),
 
+              // رسالة الخطأ تبقى ظاهرة (وليست لحظية) حتى يبدأ المستخدم تسجيلاً جديداً.
+              if (state.error != null) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppTheme.error.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppTheme.error.withOpacity(0.25)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.error_outline_rounded, color: AppTheme.error, size: 18),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          state.error!,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 13, color: AppTheme.error, fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+
               const Spacer(flex: 2),
 
               // Controls
@@ -161,9 +200,27 @@ class VoiceTestScreen extends ConsumerWidget {
                       isMain: true,
                       onPressed: () async {
                         final result = await notifier.stop();
-                        ref.read(lastSessionResultProvider.notifier).state = result;
-                        if (context.mounted) {
+                        if (!context.mounted) return;
+                        if (result != null) {
+                          ref.read(lastSessionResultProvider.notifier).state = result;
+                          // مرّر مسار التسجيل لشاشة النتيجة حتى يمكن الاستماع إليه.
+                          ref.read(lastRecordingPathProvider.notifier).state =
+                              ref.read(voiceTestProvider).recordingPath;
+                          // حدّث التحليلات (الرئيسية/الجلسات/التقارير) لتظهر الجلسة الجديدة فوراً.
+                          ref.invalidate(homeDataProvider);
+                          ref.invalidate(sessionsProvider);
+                          ref.invalidate(reportProvider);
                           Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const VoiceResultScreen()));
+                        } else {
+                          // فشل التحليل (تسجيل قصير/جودة ضعيفة/خطأ شبكة) — اعرض السبب واسمح بإعادة المحاولة.
+                          final err = ref.read(voiceTestProvider).error ?? 'تعذّر تحليل التسجيل، حاول مرة أخرى';
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(err, style: const TextStyle(fontFamily: 'IBMPlexSansArabic')),
+                              backgroundColor: AppTheme.error,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
                         }
                       },
                     ),

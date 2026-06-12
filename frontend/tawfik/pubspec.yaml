@@ -49,6 +49,8 @@ dependencies:
   percent_indicator: ^3.4.0
   flutter_riverpod: ^2.6.1
   dio: ^5.7.0
+  record: ^7.1.0  # تسجيل الصوت من الميكروفون (path_provider مُعرّف بالأعلى لحفظ التسجيل المؤقت)
+  audioplayers: ^6.1.0  # إعادة تشغيل التسجيل المحفوظ
 dev_dependencies:
   flutter_test:
     sdk: flutter
