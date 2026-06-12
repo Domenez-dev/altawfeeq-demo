@@ -69,3 +69,10 @@ def get_profile(current_user: User = Depends(get_current_user)) -> User:
 @app.get("/", tags=["Health"], summary="Health check")
 def root() -> dict[str, str]:
     return {"status": "ok", "service": API_TITLE}
+
+
+# Exposes the backend/API version dynamically. The value lives in config.py
+# (API_VERSION) — bump it by 0.0.1 on every change; this endpoint reflects it.
+@app.get("/version", tags=["Health"], summary="Get backend/API version")
+def version() -> dict[str, str]:
+    return {"version": API_VERSION}

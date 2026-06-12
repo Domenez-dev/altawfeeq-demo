@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import '../theme/app_theme.dart';
 import '../utils/indicator_helpers.dart';
@@ -312,7 +313,16 @@ class AboutScreen extends StatelessWidget {
           const SizedBox(height: 16),
           Text('التوفيق', style: _titleStyle.copyWith(fontSize: 24)),
           const SizedBox(height: 4),
-          Text('الإصدار 1.0.0', style: _bodyStyle),
+          // الإصدار يُقرأ ديناميكياً من pubspec.yaml (الحقل version) عبر
+          // package_info_plus. لتحديث الإصدار: زِد رقم النسخة في pubspec.yaml
+          // بمقدار 0.0.1 مع كل تغيير جديد على التطبيق (مثال: 1.0.0 -> 1.0.1).
+          FutureBuilder<PackageInfo>(
+            future: PackageInfo.fromPlatform(),
+            builder: (context, snapshot) {
+              final version = snapshot.hasData ? snapshot.data!.version : '...';
+              return Text('الإصدار $version', style: _bodyStyle);
+            },
+          ),
           const SizedBox(height: 24),
           _card(
             child: Text(
