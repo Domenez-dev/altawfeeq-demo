@@ -7,7 +7,11 @@ from fastapi.responses import JSONResponse
 import models  # noqa: F401 — ensures all models are registered on Base before create_all
 from config import API_DESCRIPTION, API_TITLE, API_VERSION
 from database import Base, engine
-from routers import analysis, auth, reports, schedules, sessions, users
+from routers import analysis, auth, reports, schedules, sessions, users, home
+from fastapi import Depends
+from models.user import User
+from schemas.user import UserResponse
+from utils.helpers import get_current_user
 
 Base.metadata.create_all(bind=engine)
 
@@ -54,6 +58,12 @@ app.include_router(analysis.router)
 app.include_router(sessions.router)
 app.include_router(reports.router)
 app.include_router(schedules.router)
+app.include_router(home.router)
+
+
+@app.get("/api/profile", response_model=UserResponse, tags=["Profile"], summary="Get current user profile for frontend")
+def get_profile(current_user: User = Depends(get_current_user)) -> User:
+    return current_user
 
 
 @app.get("/", tags=["Health"], summary="Health check")

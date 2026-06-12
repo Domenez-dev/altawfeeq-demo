@@ -90,3 +90,31 @@ class ReportResponse(BaseModel):
         ),
     )
     metric_distribution: list[MetricDistributionEntry]
+
+
+# ---------------------------------------------------------------------------
+# Frontend-specific schemas to match tawfik Dart model structures
+# ---------------------------------------------------------------------------
+from schemas.home import HomeIndicator
+
+
+class FrontendSessionResponse(BaseModel):
+    id: int
+    title: str
+    date: str
+    time: str
+    overall_percent: float
+    indicators: list[HomeIndicator] | None = None
+
+
+class CreateSessionRequest(BaseModel):
+    indicator_name: str
+    duration_seconds: int
+
+
+class SessionResultResponse(BaseModel):
+    session_id: int
+    date: str
+    overall_percent: float
+    indicators: list[HomeIndicator]
+

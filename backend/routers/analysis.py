@@ -152,3 +152,87 @@ async def analyze_recording(
         **{c.name: getattr(session, c.name) for c in Session.__table__.columns},
         classification_label=CLASSIFICATION_LABELS_AR[session.classification],
     )
+
+
+# ---------------------------------------------------------------------------
+# Indicator Detail endpoint for frontend
+# ---------------------------------------------------------------------------
+from pydantic import BaseModel
+
+
+class IndicatorDataPointResponse(BaseModel):
+    date: str
+    value: float
+
+
+class IndicatorDetailResponse(BaseModel):
+    name: str
+    history: list[IndicatorDataPointResponse]
+    analysis: str
+    natural_range: str
+    results: str
+
+
+@router.get(
+    "/indicators/{indicator_name}",
+    response_model=IndicatorDetailResponse,
+    summary="Get detail and history for a specific vocal indicator",
+)
+def get_indicator_detail(
+    indicator_name: str,
+    current_user: User = Depends(get_current_user),
+    db: DBSession = Depends(get_db),
+) -> IndicatorDetailResponse:
+    # Get user's sessions sorted chronologically (ascending) for history graph
+    from sqlalchemy import asc
+    sessions = (
+        db.query(Session)
+        .filter(Session.user_id == current_user.id)
+        .order_by(asc(Session.recorded_at))
+        .limit(10)
+        .all()
+    )
+
+    history = []
+    for s in sessions:
+        date_str = f"{s.recorded_at.day:02d}/{s.recorded_at.month:02d}"
+
+        # Select score based on the requested indicator
+        if "شدة" in indicator_name or "intensity" in indicator_name.lower():
+            val = s.intensity_score
+        elif "المدة" in indicator_name or "duration" in indicator_name.lower():
+            val = s.duration_score
+        elif "الطبقة" in indicator_name or "pitch" in indicator_name.lower() or "f0" in indicator_name.lower():
+            val = s.f0_score
+        elif "الاضطراب" in indicator_name or "jitter" in indicator_name.lower():
+            val = s.jitter_score
+        else:
+            val = s.overall_score
+
+        history.append(IndicatorDataPointResponse(date=date_str, value=val))
+
+    # Provide helpful descriptions and suggestions in Arabic
+    if "شدة" in indicator_name or "intensity" in indicator_name.lower():
+        natural_range = "60% - 90%"
+        analysis_txt = "شدة الصوت تعبر عن مدى وضوح وقوة نبرة الصوت. مستواك مستقر بشكل عام."
+        results_txt = "حاول التحدث في بيئة هادئة وبصوت ثابت ومستمر لتدريب عضلات النطق."
+    elif "المدة" in indicator_name or "duration" in indicator_name.lower():
+        natural_range = "3 - 8 ثواني"
+        analysis_txt = "المدة تعبر عن القدرة على التحكم في هواء الزفير والمحافظة على النبرة الصوتية."
+        results_txt = "تدرب على أخذ نفس عميق قبل بدء النطق، للمحافظة على طول واستقرار النبرة."
+    elif "الطبقة" in indicator_name or "pitch" in indicator_name.lower() or "f0" in indicator_name.lower():
+        natural_range = "70% - 100%"
+        analysis_txt = "الطبقة الصوتية تعكس استقرار التردد الأساسي للصوت وخلوه من التذبذب غير الطبيعي."
+        results_txt = "قم بتمارين تمديد الصوت بلطف وتجنب إجهاد حنجرتك وأوتارك الصوتية."
+    else:
+        natural_range = "60% - 90%"
+        analysis_txt = "مؤشر الاضطراب (Jitter) يقيس مدى انتظام الموجات الصوتية الفردية."
+        results_txt = "الاسترخاء والترطيب الجيد للحلق يساعدان كثيراً في خفض اضطراب نبرة الصوت."
+
+    return IndicatorDetailResponse(
+        name=indicator_name,
+        history=history,
+        analysis=analysis_txt,
+        natural_range=natural_range,
+        results=results_txt,
+    )
