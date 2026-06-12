@@ -266,11 +266,15 @@ class _SessionItem extends ConsumerWidget {
             ),
             // Bigger ring so the % text never overlaps the circle.
             CircularPercentIndicator(
-              radius: 34.0,
+              radius: 56.0,
               lineWidth: 5.0,
               percent: session.overallPercent.clamp(0.0, 1.0),
               center: Text(
                 '${(session.overallPercent * 100).toInt()}%',
+                softWrap: false,
+                overflow: TextOverflow.visible,
+                maxLines: 1,
+                textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold, color: color),
               ),
               progressColor: color,

@@ -159,11 +159,15 @@ class _HomeContent extends StatelessWidget {
                   ],
                 ),
                 CircularPercentIndicator(
-                  radius: 50.0,
+                  radius: 80.0,
                   lineWidth: 8.0,
                   percent: data.todayProgress,
                   center: Text(
                     '${(data.todayProgress * 100).toInt()}%',
+                    softWrap: false,
+                    overflow: TextOverflow.visible,
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 22.0,
                       fontWeight: FontWeight.bold,
