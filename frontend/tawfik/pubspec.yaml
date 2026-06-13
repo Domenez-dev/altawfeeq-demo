@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # App version — single source of truth, shown dynamically in the "About" screen
 # via package_info_plus. BUMP RULE: increase the version by 0.0.1 on every new
 # change to the app (e.g. 1.0.0 -> 1.0.1), and increment the +build number too.
-version: 1.0.2+3
+version: 1.0.3+4
 
 environment:
   sdk: ^3.10.8

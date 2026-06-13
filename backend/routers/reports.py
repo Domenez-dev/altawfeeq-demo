@@ -151,7 +151,9 @@ def get_reports_summary(
             prev_avg = sum(s.overall_score for s in previous_sessions) / prev_total
             compared_to_last_week = (average_overall - prev_avg) / 100.0
 
-    chart_data = [s.overall_score for s in current_sessions]
+    # Only the 10 most recent sessions on the chart, so it stays readable and
+    # reflects recent progress instead of being dominated by old history.
+    chart_data = [s.overall_score for s in current_sessions[-10:]]
 
     # Bucketing
     good_count = 0

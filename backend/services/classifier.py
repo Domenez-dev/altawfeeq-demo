@@ -49,24 +49,25 @@ F0_HARD_HIGH_HZ = 320.0
 # TUNABLE PARAMETER — adjust based on future clinical research
 # ============================================================
 # Jitter (local, %). Lower is better: <= NORMAL scores 100, >= ALZHEIMER scores
-# 0, linear in between. Widened from clinical lab values to phone-recording
-# reality — handheld sustained-vowel jitter commonly sits around 1-3% even for
-# healthy speakers, so the old 1.95% "risk" line crushed normal voices to 0.
-# Suggested range: normal [0.8 - 1.2], alzheimer [3.5 - 5.5].
+# 0, linear in between. NORMAL is the "excellent / pristine" anchor: it's set
+# low (0.5%) so a clean steady male/female voice lands in the high-80s..90s with
+# headroom, rather than everyone pegging at 100. ALZHEIMER stays wide enough
+# (4.5%) that real phone recordings aren't crushed to 0.
+# Suggested range: normal [0.3 - 0.6], alzheimer [3.5 - 5.5].
 # ============================================================
-JITTER_BASELINE_NORMAL_PERCENT = 1.0
+JITTER_BASELINE_NORMAL_PERCENT = 0.5
 JITTER_BASELINE_ALZHEIMER_PERCENT = 4.5
 
 # ============================================================
 # TUNABLE PARAMETER — adjust based on future clinical research
 # ============================================================
 # Shimmer (local, %). Lower is better: <= NORMAL scores 100, >= ALZHEIMER
-# scores 0, linear in between. Widened from clinical lab values to phone-
-# recording reality — handheld shimmer commonly sits around 4-9% even for
-# healthy speakers, so the old 5.26% "risk" line crushed normal voices to 0.
-# Suggested range: normal [3.5 - 4.5], alzheimer [11 - 15].
+# scores 0, linear in between. NORMAL is the "excellent" anchor (2.5%), set low
+# so a clean voice scores high-80s..90s with headroom instead of pegging at 100.
+# ALZHEIMER (13%) stays wide so real phone recordings aren't crushed to 0.
+# Suggested range: normal [2.0 - 3.0], alzheimer [11 - 15].
 # ============================================================
-SHIMMER_BASELINE_NORMAL_PERCENT = 4.0
+SHIMMER_BASELINE_NORMAL_PERCENT = 2.5
 SHIMMER_BASELINE_ALZHEIMER_PERCENT = 13.0
 
 # ============================================================
