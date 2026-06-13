@@ -15,14 +15,14 @@ class AnalysisException implements Exception {
 }
 
 class ApiService {
-  /// عنوان الـ backend. قابل للضبط وقت التشغيل عبر --dart-define حتى لا نُعدّل
-  /// الكود لكل جهاز:
-  ///   - سطح مكتب Linux / محاكي مع adb reverse → القيمة الافتراضية (localhost).
-  ///   - هاتف حقيقي → مرّر عنوان الـ LAN، مثلاً:
-  ///       flutter run --dart-define=API_BASE_URL=http://10.69.154.8:8000/api
+  /// عنوان الـ backend. الافتراضي الآن هو خادم الإنتاج البعيد، وقابل للضبط
+  /// وقت التشغيل عبر --dart-define دون تعديل الكود:
+  ///   - للتطوير المحلي مرّر عنوان localhost، مثلاً:
+  ///       flutter run --dart-define=API_BASE_URL=http://localhost:8000/api
+  ///   - أو عنوان الـ LAN لهاتف حقيقي على نفس الشبكة.
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://localhost:8000/api',
+    defaultValue: 'http://209.38.246.75:8000/api',
   );
 
   final Dio _dio;

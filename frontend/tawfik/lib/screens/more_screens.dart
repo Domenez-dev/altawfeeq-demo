@@ -72,10 +72,17 @@ class TherapeuticGoalScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 CircularPercentIndicator(
-                  radius: 60,
+                  radius: 96,
                   lineWidth: 12,
                   percent: 0.6,
-                  center: const Text('60%', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppTheme.primaryPurple)),
+                  center: const Text(
+                    '60%',
+                    softWrap: false,
+                    overflow: TextOverflow.visible,
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppTheme.primaryPurple),
+                  ),
                   progressColor: AppTheme.primaryPurple,
                   backgroundColor: AppTheme.primaryPurple.withOpacity(0.12),
                   circularStrokeCap: CircularStrokeCap.round,

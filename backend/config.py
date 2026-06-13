@@ -29,4 +29,4 @@ API_DESCRIPTION = (
 # returned by the GET /version endpoint.
 # BUMP RULE: increase this version by 0.0.1 on every new change to the backend
 # or API (e.g. 0.1.0 -> 0.1.1).
-API_VERSION = "0.1.3"
+API_VERSION = "0.1.4"

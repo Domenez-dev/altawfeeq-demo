@@ -77,19 +77,38 @@ async def analyze_recording(
 ) -> AnalysisResultResponse:
     raw_bytes = await file.read()
 
+    # Log every upload up front so even a rejection before feature extraction
+    # leaves a trace of what arrived (name / size / declared content type).
+    logger.info(
+        "ANALYZE request | upload=%s size=%d type=%s",
+        file.filename,
+        len(raw_bytes),
+        file.content_type,
+    )
+
     if not raw_bytes:
+        logger.warning("ANALYZE rejected | code=INVALID_FORMAT reason=empty upload")
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail={"detail": "الملف فارغ", "code": "INVALID_FORMAT"},
         )
 
     if len(raw_bytes) > MAX_UPLOAD_BYTES:
+        logger.warning(
+            "ANALYZE rejected | code=INVALID_FORMAT reason=too large (%d > %d bytes)",
+            len(raw_bytes),
+            MAX_UPLOAD_BYTES,
+        )
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail={"detail": "حجم الملف أكبر من المسموح", "code": "INVALID_FORMAT"},
         )
 
     if file.content_type and not file.content_type.startswith(_ALLOWED_CONTENT_TYPE_PREFIXES):
+        logger.warning(
+            "ANALYZE rejected | code=INVALID_FORMAT reason=unsupported content type %s",
+            file.content_type,
+        )
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail={"detail": "صيغة الملف غير مدعومة", "code": "INVALID_FORMAT"},
@@ -100,6 +119,9 @@ async def analyze_recording(
     try:
         wav_path = audio.convert_to_wav(original_path)
     except audio.AudioConversionError as exc:
+        # Include the ffmpeg failure detail — this is the usual culprit on a
+        # server that's missing a codec for the device's recording format.
+        logger.warning("ANALYZE rejected | code=INVALID_FORMAT reason=ffmpeg conversion failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail={"detail": "تعذر قراءة الملف الصوتي", "code": "INVALID_FORMAT"},
@@ -108,6 +130,7 @@ async def analyze_recording(
     try:
         features = extract_features(wav_path)
     except AudioTooShortError as exc:
+        logger.warning("ANALYZE rejected | code=AUDIO_TOO_SHORT reason=%s", exc)
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail={"detail": "التسجيل قصير جداً، يرجى المحاولة مجدداً", "code": "AUDIO_TOO_SHORT"},
@@ -128,11 +151,13 @@ async def analyze_recording(
         detail_text, error_code = quality_messages.get(
             exc.reason, ("جودة التسجيل غير كافية للتحليل", "AUDIO_QUALITY_POOR")
         )
+        logger.warning("ANALYZE rejected | code=%s reason=%s", error_code, exc)
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail={"detail": detail_text, "code": error_code},
         ) from exc
     except PraatAnalysisError as exc:
+        logger.warning("ANALYZE rejected | code=PRAAT_ANALYSIS_FAILED reason=%s", exc)
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail={"detail": "فشل تحليل الصوت", "code": "PRAAT_ANALYSIS_FAILED"},

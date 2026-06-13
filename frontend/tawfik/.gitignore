@@ -17,6 +17,7 @@ linux/
 linux/
 Windows/
 windows/
+.claude/
 
 # IntelliJ related
 *.iml

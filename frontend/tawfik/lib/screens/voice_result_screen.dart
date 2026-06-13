@@ -92,7 +92,9 @@ class VoiceResultScreen extends ConsumerWidget {
                   ),
                   child: ListView.separated(
                     padding: EdgeInsets.zero,
-                    physics: const NeverScrollableScrollPhysics(),
+                    // قائمة المؤشرات قابلة للتمرير حتى تظهر كل العناصر (الطبقة
+                    // والاضطراب) على الشاشات الصغيرة بدل أن تُقتطع.
+                    physics: const ClampingScrollPhysics(),
                     itemCount: result.indicators.length,
                     separatorBuilder: (_, __) => const Divider(height: 1, indent: 16, endIndent: 16),
                     itemBuilder: (_, i) => _ResultItem(indicator: result.indicators[i]),

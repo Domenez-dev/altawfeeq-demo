@@ -96,11 +96,15 @@ class SessionDetailScreen extends ConsumerWidget {
             children: [
               // Overall score circle (large so the % never overlaps the ring)
               CircularPercentIndicator(
-                radius: 70.0,
+                radius: 96.0,
                 lineWidth: 12.0,
                 percent: session.overallPercent.clamp(0.0, 1.0),
                 center: Text(
                   '${(session.overallPercent * 100).toInt()}%',
+                  softWrap: false,
+                  overflow: TextOverflow.visible,
+                  maxLines: 1,
+                  textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold, color: overallColor),
                 ),
                 progressColor: overallColor,
