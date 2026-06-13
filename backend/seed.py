@@ -34,9 +34,10 @@ def _make_features(quality: float) -> dict[str, float]:
     """
     quality = max(0.0, min(1.0, quality))
 
-    f0 = classifier.F0_BASELINE_ALZHEIMER_HZ + (
-        classifier.F0_BASELINE_NORMAL_HZ - classifier.F0_BASELINE_ALZHEIMER_HZ
-    ) * quality
+    # quality 1.0 → centre of the healthy F0 band; quality 0.0 → up near the
+    # hard-high bound (abnormally high pitch). Matches the band-based f0 score.
+    healthy_f0 = (classifier.F0_PLATEAU_LOW_HZ + classifier.F0_PLATEAU_HIGH_HZ) / 2.0
+    f0 = healthy_f0 + (classifier.F0_HARD_HIGH_HZ - healthy_f0) * (1.0 - quality)
     jitter = classifier.JITTER_BASELINE_ALZHEIMER_PERCENT + (
         classifier.JITTER_BASELINE_NORMAL_PERCENT - classifier.JITTER_BASELINE_ALZHEIMER_PERCENT
     ) * quality

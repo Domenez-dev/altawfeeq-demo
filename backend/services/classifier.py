@@ -4,13 +4,22 @@ Turns raw acoustic measurements (services/praat.py) into 0-100 subscores per
 metric, a single composite overall_score, and a 3-way classification used
 throughout the app (healthy / at_risk / sick).
 
-IMPORTANT — BASELINE CAVEAT
----------------------------
-The F0/jitter/shimmer reference baselines below are derived from research on
-FEMALE subjects only. Until male-specific baselines are added, classification
-results for male users will be LESS ACCURATE — male voices naturally have
-lower F0 and may show different jitter/shimmer ranges even when healthy. Treat
-male results as a rough approximation, not a validated assessment.
+IMPORTANT — CALIBRATION CAVEAT
+------------------------------
+The thresholds below are HEURISTIC, tuned so that real phone-microphone
+sustained-vowel recordings produce graded, varied scores (rather than every
+metric pinning at 100 or crushing to 0). They are NOT clinically validated and
+should be replaced with proper, sex-specific reference data once it exists.
+
+Design notes after recalibration:
+  * F0 is scored sex-agnostically as a healthy *band* (covers typical male and
+    female pitch) instead of a single female baseline, so a normal low-pitched
+    (e.g. male) voice no longer always scores 100.
+  * Jitter/shimmer "normal→risk" ranges are widened to match the higher
+    perturbation typical of phone recordings, so a healthy voice is no longer
+    forced to 0.
+  * Intensity and duration are scored as a peak around an ideal value, so they
+    vary smoothly with the recording instead of being a flat pass/fail.
 """
 from dataclasses import dataclass
 
@@ -24,73 +33,65 @@ from models.session import Classification
 # ============================================================
 # TUNABLE PARAMETER — adjust based on future clinical research
 # ============================================================
-# This value was derived from: published female-subject voice research on
-# mean fundamental frequency in healthy vs Alzheimer's-affected speakers.
-# Current value: normal = 206 Hz, alzheimer = 229 Hz
-# Suggested range: normal [190 - 220], alzheimer [215 - 245]
-# Impact: These two values define the linear interpolation endpoints for
-# f0_score. Narrowing the gap between them makes the score more sensitive to
-# small F0 deviations (more false positives); widening it makes the score more
-# forgiving (more false negatives). NOT YET VALIDATED FOR MALE VOICES.
+# F0 is scored as a healthy *band* rather than against a single (female-only)
+# baseline. Full credit inside [PLATEAU_LOW, PLATEAU_HIGH], tapering linearly to
+# 0 at the hard bounds. The plateau covers typical adult male (~100-150 Hz) and
+# female (~180-220 Hz) sustained-vowel pitch, so a normal voice of either sex
+# scores high and only abnormally low/high pitch is penalised.
+# Suggested ranges: plateau [90-100]..[215-230], hard [50-60]..[300-340].
 # ============================================================
-F0_BASELINE_NORMAL_HZ = 206.0
-F0_BASELINE_ALZHEIMER_HZ = 229.0
+F0_PLATEAU_LOW_HZ = 95.0
+F0_PLATEAU_HIGH_HZ = 225.0
+F0_HARD_LOW_HZ = 55.0
+F0_HARD_HIGH_HZ = 320.0
 
 # ============================================================
 # TUNABLE PARAMETER — adjust based on future clinical research
 # ============================================================
-# This value was derived from: published female-subject voice research on
-# jitter (local, %) in healthy vs Alzheimer's-affected speakers.
-# Current value: normal = 0.86%, alzheimer = 1.95%
-# Suggested range: normal [0.5 - 1.0], alzheimer [1.5 - 2.5]
-# Impact: Defines the linear interpolation endpoints for jitter_score. A
-# narrower gap increases sensitivity (more false positives); a wider gap
-# increases tolerance (more false negatives). NOT YET VALIDATED FOR MALE VOICES.
+# Jitter (local, %). Lower is better: <= NORMAL scores 100, >= ALZHEIMER scores
+# 0, linear in between. Widened from clinical lab values to phone-recording
+# reality — handheld sustained-vowel jitter commonly sits around 1-3% even for
+# healthy speakers, so the old 1.95% "risk" line crushed normal voices to 0.
+# Suggested range: normal [0.8 - 1.2], alzheimer [3.5 - 5.5].
 # ============================================================
-JITTER_BASELINE_NORMAL_PERCENT = 0.86
-JITTER_BASELINE_ALZHEIMER_PERCENT = 1.95
+JITTER_BASELINE_NORMAL_PERCENT = 1.0
+JITTER_BASELINE_ALZHEIMER_PERCENT = 4.5
 
 # ============================================================
 # TUNABLE PARAMETER — adjust based on future clinical research
 # ============================================================
-# This value was derived from: published female-subject voice research on
-# shimmer (local, %) in healthy vs Alzheimer's-affected speakers.
-# Current value: normal = 3.69%, alzheimer = 5.26%
-# Suggested range: normal [3.0 - 4.0], alzheimer [4.5 - 6.0]
-# Impact: Defines the linear interpolation endpoints for shimmer_score. A
-# narrower gap increases sensitivity (more false positives); a wider gap
-# increases tolerance (more false negatives). NOT YET VALIDATED FOR MALE VOICES.
+# Shimmer (local, %). Lower is better: <= NORMAL scores 100, >= ALZHEIMER
+# scores 0, linear in between. Widened from clinical lab values to phone-
+# recording reality — handheld shimmer commonly sits around 4-9% even for
+# healthy speakers, so the old 5.26% "risk" line crushed normal voices to 0.
+# Suggested range: normal [3.5 - 4.5], alzheimer [11 - 15].
 # ============================================================
-SHIMMER_BASELINE_NORMAL_PERCENT = 3.69
-SHIMMER_BASELINE_ALZHEIMER_PERCENT = 5.26
+SHIMMER_BASELINE_NORMAL_PERCENT = 4.0
+SHIMMER_BASELINE_ALZHEIMER_PERCENT = 13.0
 
 # ============================================================
 # TUNABLE PARAMETER — adjust based on future clinical research
 # ============================================================
-# This value was derived from: NO strong research baseline currently exists
-# for intensity in this context — this is an ASSUMPTION of a comfortable,
-# normal speaking/sustained-vowel loudness range for a phone-mic recording.
-# Current value: normal range = 60-80 dB
-# Suggested range: [55-65] lower bound, [75-85] upper bound
-# Impact: Recordings outside this range score lower. Too narrow a range
-# penalizes naturally quiet/loud speakers or varying recording setups; too
-# wide a range makes the intensity subscore nearly meaningless.
+# Intensity (dB). Scored as a smooth peak: full credit at the ideal centre,
+# tapering linearly to 0 once the value is TOLERANCE dB away on either side.
+# This makes the subscore vary with the recording (a comfortable mid-level
+# loudness scores best) instead of being a flat in-range/out-of-range gate.
+# Centre 70 dB, tolerance 22 dB → meaningful credit roughly across 48-92 dB.
 # ============================================================
-INTENSITY_NORMAL_RANGE_DB = (60.0, 80.0)
+INTENSITY_IDEAL_CENTER_DB = 70.0
+INTENSITY_TOLERANCE_DB = 22.0
 
 # ============================================================
 # TUNABLE PARAMETER — adjust based on future clinical research
 # ============================================================
-# This value was derived from: NO strong research baseline currently exists —
-# this is an ASSUMPTION that a sustained "آآآ" of 3-8 seconds reflects
-# adequate breath support and vocal stamina for reliable analysis.
-# Current value: ideal range = 3-8 seconds
-# Suggested range: [2-4] lower bound, [6-10] upper bound
-# Impact: Recordings outside this range score lower on duration_score. Too
-# narrow a range penalizes naturally shorter/longer sustainable phonations;
-# too wide makes the duration subscore nearly meaningless.
+# Duration (s). Scored as a smooth peak: full credit at the ideal centre,
+# tapering linearly to 0 once the value is TOLERANCE seconds away on either
+# side. A sustained "آآآ" around the centre reflects good breath support;
+# very short or very long phonations score lower instead of flat pass/fail.
+# Centre 6 s, tolerance 5 s → meaningful credit roughly across 1-11 s.
 # ============================================================
-DURATION_IDEAL_RANGE_SECONDS = (3.0, 8.0)
+DURATION_IDEAL_CENTER_SECONDS = 6.0
+DURATION_TOLERANCE_SECONDS = 5.0
 
 # ============================================================
 # TUNABLE PARAMETER — metric weights for overall score
@@ -152,19 +153,36 @@ def _score_against_baseline(value: float, normal: float, alzheimer: float) -> fl
     return _clamp(score)
 
 
-def _score_within_range(value: float, low: float, high: float) -> float:
-    """Score a value that has an ideal [low, high] range.
+def _score_band(
+    value: float, plateau_low: float, plateau_high: float, hard_low: float, hard_high: float
+) -> float:
+    """Score a value with a healthy plateau and graded taper.
 
-    Inside the range -> 100. Outside, the score decreases linearly with
-    distance from the nearest edge, reaching 0 once the value is as far
-    outside the range as the range itself is wide (clamped to [0, 100]).
+    Inside [plateau_low, plateau_high] -> 100. Between a hard bound and the
+    plateau the score tapers linearly to 0 at the hard bound. Beyond the hard
+    bounds -> 0. Used for F0, where a whole band of pitches is "normal".
     """
-    if low <= value <= high:
+    if plateau_low <= value <= plateau_high:
         return 100.0
 
-    span = max(high - low, 1e-9)
-    distance = (low - value) if value < low else (value - high)
-    score = 100.0 * (1.0 - distance / span)
+    if value < plateau_low:
+        span = max(plateau_low - hard_low, 1e-9)
+        score = 100.0 * (value - hard_low) / span
+    else:
+        span = max(hard_high - plateau_high, 1e-9)
+        score = 100.0 * (hard_high - value) / span
+    return _clamp(score)
+
+
+def _score_peak(value: float, center: float, tolerance: float) -> float:
+    """Score a value by closeness to an ideal `center`.
+
+    100 at the center, decreasing linearly to 0 at `center +/- tolerance`
+    (clamped to [0, 100]). Used for intensity and duration, where there is a
+    single ideal value rather than a wide acceptable band.
+    """
+    tolerance = max(tolerance, 1e-9)
+    score = 100.0 * (1.0 - abs(value - center) / tolerance)
     return _clamp(score)
 
 
@@ -177,15 +195,17 @@ def score_features(
     duration_seconds: float,
 ) -> MetricScores:
     """Compute per-metric 0-100 subscores and the weighted composite score."""
-    f0_score = _score_against_baseline(f0_hz, F0_BASELINE_NORMAL_HZ, F0_BASELINE_ALZHEIMER_HZ)
+    f0_score = _score_band(
+        f0_hz, F0_PLATEAU_LOW_HZ, F0_PLATEAU_HIGH_HZ, F0_HARD_LOW_HZ, F0_HARD_HIGH_HZ
+    )
     jitter_score = _score_against_baseline(
         jitter_percent, JITTER_BASELINE_NORMAL_PERCENT, JITTER_BASELINE_ALZHEIMER_PERCENT
     )
     shimmer_score = _score_against_baseline(
         shimmer_percent, SHIMMER_BASELINE_NORMAL_PERCENT, SHIMMER_BASELINE_ALZHEIMER_PERCENT
     )
-    intensity_score = _score_within_range(intensity_db, *INTENSITY_NORMAL_RANGE_DB)
-    duration_score = _score_within_range(duration_seconds, *DURATION_IDEAL_RANGE_SECONDS)
+    intensity_score = _score_peak(intensity_db, INTENSITY_IDEAL_CENTER_DB, INTENSITY_TOLERANCE_DB)
+    duration_score = _score_peak(duration_seconds, DURATION_IDEAL_CENTER_SECONDS, DURATION_TOLERANCE_SECONDS)
 
     overall_score = _clamp(
         WEIGHT_F0 * f0_score
