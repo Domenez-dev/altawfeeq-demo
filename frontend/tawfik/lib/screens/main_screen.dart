@@ -62,7 +62,7 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         notchMargin: 8.0,
-        color: Colors.white,
+        color: AppTheme.cardBackground,
         elevation: 20,
         child: SizedBox(
           height: 65,

@@ -20,10 +20,10 @@ class IndicatorDetailsScreen extends ConsumerWidget {
         backgroundColor: AppTheme.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.textPrimary, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.textPrimary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'تفاصيل المؤشر',
           style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20),
         ),
@@ -44,7 +44,7 @@ class IndicatorDetailsScreen extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppTheme.cardBackground,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: AppTheme.border.withOpacity(0.3)),
                       ),
@@ -52,8 +52,8 @@ class IndicatorDetailsScreen extends ConsumerWidget {
                         child: DropdownButton<String>(
                           value: selectedIndicator,
                           isExpanded: true,
-                          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppTheme.textSecondary),
-                          style: const TextStyle(color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic', fontSize: 16, fontWeight: FontWeight.w500),
+                          icon: Icon(Icons.keyboard_arrow_down_rounded, color: AppTheme.textSecondary),
+                          style: TextStyle(color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic', fontSize: 16, fontWeight: FontWeight.w500),
                           items: kIndicatorNames.map((v) => DropdownMenuItem(value: v, child: Text(v))).toList(),
                           onChanged: (v) {
                             if (v != null) ref.read(selectedIndicatorProvider.notifier).state = v;
@@ -77,7 +77,7 @@ class IndicatorDetailsScreen extends ConsumerWidget {
                           Container(
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: AppTheme.cardBackground,
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
                             ),
@@ -152,7 +152,7 @@ class IndicatorDetailsScreen extends ConsumerWidget {
                           Container(
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: AppTheme.cardBackground,
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
                             ),
@@ -166,7 +166,7 @@ class IndicatorDetailsScreen extends ConsumerWidget {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text('المجال الطبيعي', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
+                                    Text('المجال الطبيعي', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
                                     const SizedBox(height: 4),
                                     Text(detail.naturalRange, style: TextStyle(fontSize: 14, color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic')),
                                   ],
@@ -218,14 +218,14 @@ class _InfoCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardBackground,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
+          Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
           const SizedBox(height: 8),
           Text(body, style: TextStyle(fontSize: 14, color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic', height: 1.5)),
         ],

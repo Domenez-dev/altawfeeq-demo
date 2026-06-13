@@ -20,7 +20,7 @@ class HomeTab extends ConsumerWidget {
         backgroundColor: AppTheme.background,
         elevation: 0,
         automaticallyImplyLeading: false,
-        title: const Text(
+        title: Text(
           'الرئيسية',
           style: TextStyle(
             color: AppTheme.textPrimary,
@@ -32,7 +32,7 @@ class HomeTab extends ConsumerWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_none_rounded, color: AppTheme.textPrimary),
+            icon: Icon(Icons.notifications_none_rounded, color: AppTheme.textPrimary),
             onPressed: () {},
           ),
         ],
@@ -75,7 +75,7 @@ class _HomeContent extends StatelessWidget {
                 children: [
                   Text(
                     'مرحباً ${data.userName}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: AppTheme.textPrimary,
@@ -184,7 +184,7 @@ class _HomeContent extends StatelessWidget {
 
           const SizedBox(height: 32),
 
-          const Text(
+          Text(
             'المؤشرات اليوم',
             style: TextStyle(
               fontSize: 18,
@@ -216,7 +216,7 @@ class _IndicatorRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardBackground,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),

@@ -50,11 +50,9 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
               primary: AppTheme.primaryPurple,
               onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: AppTheme.textPrimary,
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
@@ -305,7 +303,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardBackground,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppTheme.border.withOpacity(0.3), width: 1),
         boxShadow: [
@@ -346,7 +344,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                 const SizedBox(height: 4),
                 Text(
                   widget.smartwatch.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.textPrimary,
@@ -392,7 +390,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardBackground,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppTheme.border.withOpacity(0.3), width: 1),
         boxShadow: [
@@ -619,7 +617,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       const SizedBox(height: 4),
                       Text(
                         _selectedTime.format(context),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: AppTheme.textPrimary,

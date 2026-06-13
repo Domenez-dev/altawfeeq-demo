@@ -25,7 +25,7 @@ class SessionDetailScreen extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.cardBackground,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('حذف الجلسة', style: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.bold)),
         content: Text('هل تريد حذف "${session.title}"؟ لا يمكن التراجع عن هذا الإجراء.',
@@ -33,7 +33,7 @@ class SessionDetailScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('إلغاء', style: TextStyle(fontFamily: 'IBMPlexSansArabic', color: AppTheme.textSecondary)),
+            child: Text('إلغاء', style: TextStyle(fontFamily: 'IBMPlexSansArabic', color: AppTheme.textSecondary)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -74,11 +74,11 @@ class SessionDetailScreen extends ConsumerWidget {
         backgroundColor: AppTheme.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.textPrimary, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.textPrimary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(session.title,
-            style: const TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20)),
+            style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20)),
         centerTitle: true,
         actions: [
           IconButton(
@@ -149,7 +149,7 @@ class SessionDetailScreen extends ConsumerWidget {
               // Indicators
               Align(
                 alignment: Alignment.centerRight,
-                child: const Text('المؤشرات الصوتية',
+                child: Text('المؤشرات الصوتية',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
               ),
               const SizedBox(height: 12),
@@ -178,7 +178,7 @@ class _IndicatorCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardBackground,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppTheme.border.withOpacity(0.3)),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],

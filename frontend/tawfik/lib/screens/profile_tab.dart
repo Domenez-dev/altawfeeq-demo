@@ -18,11 +18,11 @@ class ProfileTab extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppTheme.background,
         elevation: 0,
-        title: const Text('الملف الشخصي', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20)),
+        title: Text('الملف الشخصي', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20)),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings_outlined, color: AppTheme.textPrimary),
+            icon: Icon(Icons.settings_outlined, color: AppTheme.textPrimary),
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AppSettingsScreen())),
           ),
         ],
@@ -38,7 +38,7 @@ class ProfileTab extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppTheme.cardBackground,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppTheme.border.withOpacity(0.3)),
                   boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
@@ -61,14 +61,14 @@ class ProfileTab extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(profile.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
+                          Text(profile.name, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
                           const SizedBox(height: 4),
                           Text(profile.email, style: TextStyle(fontSize: 14, color: AppTheme.textSecondary)),
                         ],
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.edit_outlined, color: AppTheme.textSecondary),
+                      icon: Icon(Icons.edit_outlined, color: AppTheme.textSecondary),
                       onPressed: () => Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => EditProfileScreen(name: profile.name, email: profile.email)),
@@ -83,7 +83,7 @@ class ProfileTab extends ConsumerWidget {
               // Menu
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppTheme.cardBackground,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppTheme.border.withOpacity(0.3)),
                   boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
@@ -150,14 +150,14 @@ Future<void> _confirmLogout(BuildContext context) async {
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.cardBackground,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: const Text('تسجيل الخروج', style: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.bold)),
       content: const Text('هل تريد تسجيل الخروج من التطبيق؟', style: TextStyle(fontFamily: 'IBMPlexSansArabic')),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx, false),
-          child: const Text('إلغاء', style: TextStyle(fontFamily: 'IBMPlexSansArabic', color: AppTheme.textSecondary)),
+          child: Text('إلغاء', style: TextStyle(fontFamily: 'IBMPlexSansArabic', color: AppTheme.textSecondary)),
         ),
         TextButton(
           onPressed: () => Navigator.pop(ctx, true),
@@ -188,7 +188,7 @@ class _MenuItem extends StatelessWidget {
         decoration: BoxDecoration(color: AppTheme.background, borderRadius: BorderRadius.circular(10)),
         child: Icon(icon, color: AppTheme.textPrimary, size: 20),
       ),
-      title: Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
+      title: Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

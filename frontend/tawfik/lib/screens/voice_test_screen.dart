@@ -23,10 +23,10 @@ class VoiceTestScreen extends ConsumerWidget {
         backgroundColor: AppTheme.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.textPrimary, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.textPrimary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'المؤشر الحالي',
           style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20),
         ),
@@ -43,7 +43,7 @@ class VoiceTestScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppTheme.cardBackground,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppTheme.border.withOpacity(0.3)),
                 ),
@@ -51,8 +51,8 @@ class VoiceTestScreen extends ConsumerWidget {
                   child: DropdownButton<String>(
                     value: state.selectedIndicator,
                     isExpanded: true,
-                    icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppTheme.textSecondary),
-                    style: const TextStyle(color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic', fontSize: 16, fontWeight: FontWeight.w500),
+                    icon: Icon(Icons.keyboard_arrow_down_rounded, color: AppTheme.textSecondary),
+                    style: TextStyle(color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic', fontSize: 16, fontWeight: FontWeight.w500),
                     items: kIndicatorNames.map((v) => DropdownMenuItem(value: v, child: Text(v))).toList(),
                     onChanged: (v) { if (v != null) notifier.selectIndicator(v); },
                   ),
@@ -90,7 +90,7 @@ class VoiceTestScreen extends ConsumerWidget {
                                       : state.isPaused
                                           ? 'متوقف مؤقتاً'
                                           : 'جاهز',
-                              style: const TextStyle(fontSize: 18, color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w600),
+                              style: TextStyle(fontSize: 18, color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w600),
                             ),
                           ],
                         ),
@@ -136,12 +136,12 @@ class VoiceTestScreen extends ConsumerWidget {
 
               Text(
                 state.formattedTime,
-                style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic'),
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic'),
               ),
 
               const SizedBox(height: 6),
 
-              const Text(
+              Text(
                 'تحدث الآن بصوتك الطبيعي',
                 style: TextStyle(fontSize: 15, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w500),
               ),
@@ -252,7 +252,7 @@ class _ControlButton extends StatelessWidget {
         width: isMain ? 72 : 56,
         height: isMain ? 72 : 56,
         decoration: BoxDecoration(
-          color: isMain ? AppTheme.primaryPurple : Colors.white,
+          color: isMain ? AppTheme.primaryPurple : AppTheme.cardBackground,
           shape: BoxShape.circle,
           boxShadow: [BoxShadow(color: (isMain ? AppTheme.primaryPurple : Colors.black).withOpacity(0.15), blurRadius: 15, offset: const Offset(0, 5))],
         ),

@@ -57,7 +57,7 @@ class ErrorRetryView extends StatelessWidget {
             Text(
               _message,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 15, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w600),
+              style: TextStyle(fontSize: 15, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 20),
             ElevatedButton.icon(

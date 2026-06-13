@@ -319,7 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Location Icon button for TTS
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppTheme.cardBackground,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: AppTheme.primaryPurple.withOpacity(0.2),

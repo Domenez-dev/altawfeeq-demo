@@ -8,7 +8,7 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.background,
       body: Container(
         width: double.infinity,
         decoration: BoxDecoration(
@@ -16,7 +16,7 @@ class SplashScreen extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.white,
+              AppTheme.background,
               AppTheme.primaryPurple.withOpacity(0.05),
               AppTheme.primaryPurple.withOpacity(0.15),
             ],
@@ -75,7 +75,7 @@ class SplashScreen extends StatelessWidget {
                 
                 const SizedBox(height: 48),
                 
-                const Text(
+                Text(
                   'مرحباً بك في',
                   style: TextStyle(
                     fontSize: 18,
@@ -99,7 +99,7 @@ class SplashScreen extends StatelessWidget {
                 
                 const SizedBox(height: 16),
                 
-                const Text(
+                Text(
                   'تطبيق ذكي لمتابعة المؤشرات الصوتية',
                   style: TextStyle(
                     fontSize: 16,

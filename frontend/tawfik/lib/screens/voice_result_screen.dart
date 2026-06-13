@@ -25,12 +25,12 @@ class VoiceResultScreen extends ConsumerWidget {
         backgroundColor: AppTheme.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.textPrimary, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.textPrimary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         title: Column(
           children: [
-            const Text(
+            Text(
               'نتيجة الجلسة',
               style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20),
             ),
@@ -63,7 +63,7 @@ class VoiceResultScreen extends ConsumerWidget {
 
               const SizedBox(height: 24),
 
-              const Text(
+              Text(
                 'تمت الجلسة بنجاح',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic'),
               ),
@@ -86,7 +86,7 @@ class VoiceResultScreen extends ConsumerWidget {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppTheme.cardBackground,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: AppTheme.border.withOpacity(0.3)),
                   ),
@@ -152,11 +152,11 @@ class _ResultItem extends StatelessWidget {
         children: [
           Expanded(
             flex: 2,
-            child: Text(indicator.name, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
+            child: Text(indicator.name, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
           ),
           Expanded(
             flex: 1,
-            child: Text('${(indicator.percent * 100).toInt()}%', textAlign: TextAlign.center, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
+            child: Text('${(indicator.percent * 100).toInt()}%', textAlign: TextAlign.center, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
           ),
           Expanded(
             flex: 1,

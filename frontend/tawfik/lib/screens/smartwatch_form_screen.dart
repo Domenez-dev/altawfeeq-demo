@@ -259,7 +259,7 @@ class _SmartwatchFormScreenState extends State<SmartwatchFormScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardBackground,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppTheme.border.withOpacity(0.3), width: 1),
         boxShadow: [

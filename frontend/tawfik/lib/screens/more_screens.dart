@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import '../theme/app_theme.dart';
+import '../providers/theme_provider.dart';
 import '../utils/indicator_helpers.dart';
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -23,10 +25,10 @@ class MoreScaffold extends StatelessWidget {
         backgroundColor: AppTheme.background,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.textPrimary, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.textPrimary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(title, style: const TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20)),
+        title: Text(title, style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20)),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -44,7 +46,7 @@ Widget _card({required Widget child}) => Container(
       padding: const EdgeInsets.all(20),
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.cardBackground,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppTheme.border.withOpacity(0.3)),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
@@ -52,7 +54,7 @@ Widget _card({required Widget child}) => Container(
       child: child,
     );
 
-TextStyle get _titleStyle => const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic');
+TextStyle get _titleStyle => TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic');
 TextStyle get _bodyStyle => TextStyle(fontSize: 14, color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic', height: 1.6);
 
 // ─── الهدف العلاجي ──────────────────────────────────────────────────────────
@@ -210,20 +212,21 @@ class _SessionRemindersScreenState extends State<SessionRemindersScreen> {
 
 // ─── الإعدادات ──────────────────────────────────────────────────────────────
 
-class AppSettingsScreen extends StatefulWidget {
+class AppSettingsScreen extends ConsumerStatefulWidget {
   const AppSettingsScreen({super.key});
 
   @override
-  State<AppSettingsScreen> createState() => _AppSettingsScreenState();
+  ConsumerState<AppSettingsScreen> createState() => _AppSettingsScreenState();
 }
 
-class _AppSettingsScreenState extends State<AppSettingsScreen> {
+class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
   bool _notifications = true;
   bool _sounds = true;
-  bool _darkMode = false;
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = ref.watch(themeModeProvider) == ThemeMode.dark;
+
     Widget toggle(String title, bool value, ValueChanged<bool> onChanged) => _card(
           child: Row(
             children: [
@@ -239,7 +242,8 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
         children: [
           toggle('الإشعارات', _notifications, (v) => setState(() => _notifications = v)),
           toggle('أصوات التطبيق', _sounds, (v) => setState(() => _sounds = v)),
-          toggle('الوضع الليلي', _darkMode, (v) => setState(() => _darkMode = v)),
+          toggle('الوضع الليلي', isDarkMode,
+              (v) => ref.read(themeModeProvider.notifier).setDark(v)),
           _card(
             child: ListTile(
               contentPadding: EdgeInsets.zero,
@@ -276,7 +280,7 @@ class HelpScreen extends StatelessWidget {
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppTheme.cardBackground,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppTheme.border.withOpacity(0.3)),
             ),
@@ -284,7 +288,7 @@ class HelpScreen extends StatelessWidget {
               data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
                 shape: const Border(),
-                title: Text(item[0], style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
+                title: Text(item[0], style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
                 childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 children: [Align(alignment: Alignment.centerRight, child: Text(item[1], style: _bodyStyle))],
               ),
@@ -376,7 +380,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             style: const TextStyle(fontFamily: 'IBMPlexSansArabic'),
             decoration: InputDecoration(
               filled: true,
-              fillColor: Colors.white,
+              fillColor: AppTheme.cardBackground,
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppTheme.border.withOpacity(0.3))),
               enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppTheme.border.withOpacity(0.3))),
