@@ -1,4 +1,5 @@
 """Audio analysis endpoint — runs the full Praat pipeline on an uploaded recording."""
+import logging
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
@@ -18,6 +19,11 @@ from services.praat import (
 from utils.helpers import get_current_user
 
 router = APIRouter(prefix="/api/analysis", tags=["Analysis"])
+
+# Logs to the uvicorn output so we can compare the raw acoustic values produced
+# on different machines (e.g. local vs VPS). Identical values across different
+# recordings usually point to a broken audio decode (ffmpeg) rather than Praat.
+logger = logging.getLogger("uvicorn.error")
 
 # ============================================================
 # TUNABLE PARAMETER — adjust based on future clinical research
@@ -131,6 +137,20 @@ async def analyze_recording(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail={"detail": "فشل تحليل الصوت", "code": "PRAAT_ANALYSIS_FAILED"},
         ) from exc
+
+    logger.info(
+        "ANALYZE raw features | upload=%s (%d bytes, type=%s) wav=%s | "
+        "duration=%.3fs f0=%.2fHz jitter=%.4f%% shimmer=%.4f%% intensity=%.2fdB",
+        file.filename,
+        len(raw_bytes),
+        file.content_type,
+        wav_path.name,
+        features.duration_seconds,
+        features.f0_hz,
+        features.jitter_percent,
+        features.shimmer_percent,
+        features.intensity_db,
+    )
 
     scores = classifier.score_features(
         f0_hz=features.f0_hz,
