@@ -245,15 +245,19 @@ def get_indicator_detail(
     current_user: User = Depends(get_current_user),
     db: DBSession = Depends(get_db),
 ) -> IndicatorDetailResponse:
-    # Get user's sessions sorted chronologically (ascending) for history graph
-    from sqlalchemy import asc
+    # Take the 10 MOST RECENT sessions (so newly recorded ones always appear),
+    # then reverse to chronological order (oldest → newest) for the history
+    # graph. Ordering ascending + limit would pin the graph to the oldest
+    # sessions and hide every new recording once 10 older ones exist.
+    from sqlalchemy import desc
     sessions = (
         db.query(Session)
         .filter(Session.user_id == current_user.id)
-        .order_by(asc(Session.recorded_at))
+        .order_by(desc(Session.recorded_at))
         .limit(10)
         .all()
     )
+    sessions.reverse()
 
     history = []
     for s in sessions:
