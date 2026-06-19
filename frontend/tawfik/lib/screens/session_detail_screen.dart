@@ -25,7 +25,7 @@ class SessionDetailScreen extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.cardBackground,
+        backgroundColor: context.appColors.cardBackground,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('حذف الجلسة', style: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.bold)),
         content: Text('هل تريد حذف "${session.title}"؟ لا يمكن التراجع عن هذا الإجراء.',
@@ -33,7 +33,7 @@ class SessionDetailScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('إلغاء', style: TextStyle(fontFamily: 'IBMPlexSansArabic', color: AppTheme.textSecondary)),
+            child: Text('إلغاء', style: TextStyle(fontFamily: 'IBMPlexSansArabic', color: context.appColors.textSecondary)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -69,16 +69,16 @@ class SessionDetailScreen extends ConsumerWidget {
     final indicators = session.indicators ?? const [];
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appColors.background,
       appBar: AppBar(
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.appColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.textPrimary, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.appColors.textPrimary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(session.title,
-            style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20)),
+            style: TextStyle(color: context.appColors.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20)),
         centerTitle: true,
         actions: [
           IconButton(
@@ -113,7 +113,7 @@ class SessionDetailScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
               Text('${session.date}  •  ${session.time}',
-                  style: TextStyle(fontSize: 13, color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic')),
+                  style: TextStyle(fontSize: 13, color: context.appColors.textSecondary, fontFamily: 'IBMPlexSansArabic')),
 
               const SizedBox(height: 28),
 
@@ -136,10 +136,10 @@ class SessionDetailScreen extends ConsumerWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.volume_off_rounded, size: 18, color: AppTheme.textSecondary.withOpacity(0.7)),
+                        Icon(Icons.volume_off_rounded, size: 18, color: context.appColors.textSecondary.withOpacity(0.7)),
                         const SizedBox(width: 8),
                         Text('تسجيل هذه الجلسة غير متوفر على هذا الجهاز',
-                            style: TextStyle(fontSize: 12.5, color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic')),
+                            style: TextStyle(fontSize: 12.5, color: context.appColors.textSecondary, fontFamily: 'IBMPlexSansArabic')),
                       ],
                     ),
                   );
@@ -150,13 +150,13 @@ class SessionDetailScreen extends ConsumerWidget {
               Align(
                 alignment: Alignment.centerRight,
                 child: Text('المؤشرات الصوتية',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: context.appColors.textPrimary, fontFamily: 'IBMPlexSansArabic')),
               ),
               const SizedBox(height: 12),
 
               if (indicators.isEmpty)
                 Text('لا توجد تفاصيل مؤشرات لهذه الجلسة',
-                    style: TextStyle(fontSize: 13, color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic'))
+                    style: TextStyle(fontSize: 13, color: context.appColors.textSecondary, fontFamily: 'IBMPlexSansArabic'))
               else
                 ...indicators.map((ind) => _IndicatorCard(indicator: ind)),
             ],
@@ -178,9 +178,9 @@ class _IndicatorCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.cardBackground,
+        color: context.appColors.cardBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.border.withOpacity(0.3)),
+        border: Border.all(color: context.appColors.border.withOpacity(0.3)),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(

@@ -15,15 +15,15 @@ class HomeTab extends ConsumerWidget {
     final homeAsync = ref.watch(homeDataProvider);
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appColors.background,
       appBar: AppBar(
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.appColors.background,
         elevation: 0,
         automaticallyImplyLeading: false,
         title: Text(
           'الرئيسية',
           style: TextStyle(
-            color: AppTheme.textPrimary,
+            color: context.appColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontFamily: 'IBMPlexSansArabic',
             fontSize: 20,
@@ -32,7 +32,7 @@ class HomeTab extends ConsumerWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications_none_rounded, color: AppTheme.textPrimary),
+            icon: Icon(Icons.notifications_none_rounded, color: context.appColors.textPrimary),
             onPressed: () {},
           ),
         ],
@@ -78,7 +78,7 @@ class _HomeContent extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary,
+                      color: context.appColors.textPrimary,
                       fontFamily: 'IBMPlexSansArabic',
                     ),
                   ),
@@ -86,7 +86,7 @@ class _HomeContent extends StatelessWidget {
                     'مستعد لليوم الجديد؟',
                     style: TextStyle(
                       fontSize: 14,
-                      color: AppTheme.textSecondary,
+                      color: context.appColors.textSecondary,
                       fontFamily: 'IBMPlexSansArabic',
                     ),
                   ),
@@ -189,7 +189,7 @@ class _HomeContent extends StatelessWidget {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimary,
+              color: context.appColors.textPrimary,
               fontFamily: 'IBMPlexSansArabic',
             ),
           ),
@@ -216,12 +216,12 @@ class _IndicatorRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.cardBackground,
+        color: context.appColors.cardBackground,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
         ],
-        border: Border.all(color: AppTheme.border.withOpacity(0.3)),
+        border: Border.all(color: context.appColors.border.withOpacity(0.3)),
       ),
       child: Column(
         children: [

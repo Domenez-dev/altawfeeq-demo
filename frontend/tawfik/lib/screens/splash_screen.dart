@@ -8,7 +8,7 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appColors.background,
       body: Container(
         width: double.infinity,
         decoration: BoxDecoration(
@@ -16,7 +16,7 @@ class SplashScreen extends StatelessWidget {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              AppTheme.background,
+              context.appColors.background,
               AppTheme.primaryPurple.withOpacity(0.05),
               AppTheme.primaryPurple.withOpacity(0.15),
             ],
@@ -79,7 +79,7 @@ class SplashScreen extends StatelessWidget {
                   'مرحباً بك في',
                   style: TextStyle(
                     fontSize: 18,
-                    color: AppTheme.textSecondary,
+                    color: context.appColors.textSecondary,
                     fontFamily: 'IBMPlexSansArabic',
                   ),
                 ),
@@ -103,7 +103,7 @@ class SplashScreen extends StatelessWidget {
                   'تطبيق ذكي لمتابعة المؤشرات الصوتية',
                   style: TextStyle(
                     fontSize: 16,
-                    color: AppTheme.textSecondary,
+                    color: context.appColors.textSecondary,
                     fontFamily: 'IBMPlexSansArabic',
                   ),
                   textAlign: TextAlign.center,
@@ -177,7 +177,7 @@ class SplashScreen extends StatelessWidget {
                       Text(
                         'ليس لديك حساب؟ ',
                         style: TextStyle(
-                          color: AppTheme.textSecondary,
+                          color: context.appColors.textSecondary,
                           fontSize: 14,
                           fontFamily: 'IBMPlexSansArabic',
                         ),

@@ -107,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appColors.background,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
@@ -139,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
             end: Alignment.bottomRight,
             colors: [
               AppTheme.primaryPurple.withOpacity(0.08),
-              AppTheme.background,
+              context.appColors.background,
             ],
           ),
         ),
@@ -308,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   'اختر خدمة للبدء',
                   style: TextStyle(
                     fontSize: 14,
-                    color: AppTheme.textSecondary,
+                    color: context.appColors.textSecondary,
                     fontFamily: 'IBMPlexSansArabic',
                     fontWeight: FontWeight.w500,
                   ),
@@ -319,7 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Location Icon button for TTS
           Container(
             decoration: BoxDecoration(
-              color: AppTheme.cardBackground,
+              color: context.appColors.cardBackground,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: AppTheme.primaryPurple.withOpacity(0.2),
@@ -462,7 +462,7 @@ class _ServiceCardState extends State<_ServiceCard> {
         transform: Matrix4.identity()..scale(_isPressed ? 0.95 : 1.0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppTheme.border.withOpacity(0.2), width: 1),
+          border: Border.all(color: context.appColors.border.withOpacity(0.2), width: 1),
           boxShadow: [
             BoxShadow(
               color: _isPressed

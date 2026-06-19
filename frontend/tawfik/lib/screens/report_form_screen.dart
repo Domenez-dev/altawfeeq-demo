@@ -115,10 +115,10 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
     final isTablet = screenWidth > 600;
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appColors.background,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.appColors.background,
         leading: IconButton(
           icon: Container(
             padding: const EdgeInsets.all(8),
@@ -252,7 +252,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                   'أضف تقرير طبي مع ملف PDF',
                   style: TextStyle(
                     fontSize: 13,
-                    color: AppTheme.textSecondary,
+                    color: context.appColors.textSecondary,
                     fontFamily: 'IBMPlexSansArabic',
                   ),
                 ),
@@ -268,9 +268,9 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppTheme.cardBackground,
+        color: context.appColors.cardBackground,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.border.withOpacity(0.3), width: 1),
+        border: Border.all(color: context.appColors.border.withOpacity(0.3), width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -322,9 +322,9 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppTheme.cardBackground,
+        color: context.appColors.cardBackground,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.border.withOpacity(0.3), width: 1),
+        border: Border.all(color: context.appColors.border.withOpacity(0.3), width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -370,12 +370,12 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
               decoration: BoxDecoration(
                 color: hasFile
                     ? AppTheme.success.withOpacity(0.05)
-                    : AppTheme.background,
+                    : context.appColors.background,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: hasFile
                       ? AppTheme.success.withOpacity(0.3)
-                      : AppTheme.border.withOpacity(0.3),
+                      : context.appColors.border.withOpacity(0.3),
                   width: 2,
                 ),
               ),
@@ -484,7 +484,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                     Text(
                       'اضغط هنا لإختيار ملف PDF من جهازك',
                       style: TextStyle(
-                        color: AppTheme.textSecondary,
+                        color: context.appColors.textSecondary,
                         fontSize: 13,
                         fontFamily: 'IBMPlexSansArabic',
                       ),
@@ -545,12 +545,12 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
-              color: AppTheme.textSecondary.withOpacity(0.5),
+              color: context.appColors.textSecondary.withOpacity(0.5),
               fontSize: 14,
               fontFamily: 'IBMPlexSansArabic',
             ),
             filled: true,
-            fillColor: AppTheme.background,
+            fillColor: context.appColors.background,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 16,
@@ -559,14 +559,14 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(
-                color: AppTheme.border.withOpacity(0.3),
+                color: context.appColors.border.withOpacity(0.3),
                 width: 1,
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(
-                color: AppTheme.border.withOpacity(0.3),
+                color: context.appColors.border.withOpacity(0.3),
                 width: 1,
               ),
             ),

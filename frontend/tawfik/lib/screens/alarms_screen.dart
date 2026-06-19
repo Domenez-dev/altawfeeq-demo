@@ -169,10 +169,10 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
     final isTablet = screenWidth > 600;
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appColors.background,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.appColors.background,
         leading: IconButton(
           icon: Container(
             padding: const EdgeInsets.all(8),
@@ -275,7 +275,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
           Text(
             'جاري التحميل...',
             style: TextStyle(
-              color: AppTheme.textSecondary,
+              color: context.appColors.textSecondary,
               fontSize: 16,
               fontFamily: 'IBMPlexSansArabic',
             ),
@@ -328,7 +328,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
               'ابدأ بإضافة تنبيه جديد للأدوية',
               style: TextStyle(
                 fontSize: 15,
-                color: AppTheme.textSecondary,
+                color: context.appColors.textSecondary,
                 fontFamily: 'IBMPlexSansArabic',
               ),
               textAlign: TextAlign.center,
@@ -431,8 +431,8 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
                               AppTheme.primaryPurple.withOpacity(0.05),
                             ]
                           : [
-                              AppTheme.textSecondary.withOpacity(0.1),
-                              AppTheme.textSecondary.withOpacity(0.05),
+                              context.appColors.textSecondary.withOpacity(0.1),
+                              context.appColors.textSecondary.withOpacity(0.05),
                             ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -441,7 +441,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
                     border: Border.all(
                       color: alarm.enabled
                           ? AppTheme.primaryPurple.withOpacity(0.1)
-                          : AppTheme.textSecondary.withOpacity(0.1),
+                          : context.appColors.textSecondary.withOpacity(0.1),
                       width: 1,
                     ),
                   ),
@@ -449,7 +449,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
                     Icons.medication_rounded,
                     color: alarm.enabled
                         ? AppTheme.primaryPurple
-                        : AppTheme.textSecondary,
+                        : context.appColors.textSecondary,
                     size: iconInnerSize,
                   ),
                 ),
@@ -469,7 +469,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
                           fontSize: fontSize,
                           color: alarm.enabled
                               ? AppTheme.primaryPurple
-                              : AppTheme.textSecondary,
+                              : context.appColors.textSecondary,
                           fontFamily: 'IBMPlexSansArabic',
                           height: 1.3,
                         ),
@@ -486,7 +486,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
                           decoration: BoxDecoration(
                             color: alarm.enabled
                                 ? AppTheme.primaryPurple.withOpacity(0.08)
-                                : AppTheme.textSecondary.withOpacity(0.08),
+                                : context.appColors.textSecondary.withOpacity(0.08),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
@@ -497,7 +497,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
                                 size: isTiny ? 10 : 12,
                                 color: alarm.enabled
                                     ? AppTheme.primaryPurple.withOpacity(0.7)
-                                    : AppTheme.textSecondary.withOpacity(0.7),
+                                    : context.appColors.textSecondary.withOpacity(0.7),
                               ),
                               SizedBox(width: isTiny ? 3 : 5),
                               Text(
@@ -505,7 +505,7 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
                                 style: TextStyle(
                                   color: alarm.enabled
                                       ? AppTheme.primaryPurple
-                                      : AppTheme.textSecondary,
+                                      : context.appColors.textSecondary,
                                   fontSize: timeFontSize,
                                   fontFamily: 'IBMPlexSansArabic',
                                   fontWeight: FontWeight.w600,
@@ -531,8 +531,8 @@ class _AlarmsScreenState extends State<AlarmsScreen> {
                       onChanged: (_) => _toggleAlarm(alarm),
                       activeThumbColor: AppTheme.primaryPurple,
                       activeTrackColor: AppTheme.primaryPurple.withOpacity(0.5),
-                      inactiveThumbColor: AppTheme.textSecondary,
-                      inactiveTrackColor: AppTheme.textSecondary.withOpacity(
+                      inactiveThumbColor: context.appColors.textSecondary,
+                      inactiveTrackColor: context.appColors.textSecondary.withOpacity(
                         0.3,
                       ),
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,

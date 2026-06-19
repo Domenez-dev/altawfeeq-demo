@@ -202,10 +202,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final isTablet = screenWidth > 600;
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appColors.background,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.appColors.background,
         leading: IconButton(
           icon: Container(
             padding: const EdgeInsets.all(8),
@@ -306,7 +306,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           Text(
             'جاري التحميل...',
             style: TextStyle(
-              color: AppTheme.textSecondary,
+              color: context.appColors.textSecondary,
               fontSize: 16,
               fontFamily: 'IBMPlexSansArabic',
             ),
@@ -359,7 +359,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
               'ابدأ بإضافة تقرير طبي جديد لحفظ السجلات',
               style: TextStyle(
                 fontSize: 15,
-                color: AppTheme.textSecondary,
+                color: context.appColors.textSecondary,
                 fontFamily: 'IBMPlexSansArabic',
               ),
               textAlign: TextAlign.center,
@@ -559,7 +559,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.textSecondary.withOpacity(0.08),
+                    color: context.appColors.textSecondary.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
@@ -568,13 +568,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       Icon(
                         Icons.access_time_rounded,
                         size: isSmallScreen ? 12 : 13,
-                        color: AppTheme.textSecondary.withOpacity(0.7),
+                        color: context.appColors.textSecondary.withOpacity(0.7),
                       ),
                       SizedBox(width: isSmallScreen ? 4 : 6),
                       Text(
                         _formatTime(report.createdAt),
                         style: TextStyle(
-                          color: AppTheme.textSecondary,
+                          color: context.appColors.textSecondary,
                           fontSize: isSmallScreen ? 11 : 12,
                           fontFamily: 'IBMPlexSansArabic',
                         ),

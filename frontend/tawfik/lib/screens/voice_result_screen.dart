@@ -20,23 +20,23 @@ class VoiceResultScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appColors.background,
       appBar: AppBar(
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.appColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.textPrimary, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.appColors.textPrimary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         title: Column(
           children: [
             Text(
               'نتيجة الجلسة',
-              style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20),
+              style: TextStyle(color: context.appColors.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20),
             ),
             Text(
               result.date,
-              style: TextStyle(color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic', fontSize: 12),
+              style: TextStyle(color: context.appColors.textSecondary, fontFamily: 'IBMPlexSansArabic', fontSize: 12),
             ),
           ],
         ),
@@ -65,10 +65,10 @@ class VoiceResultScreen extends ConsumerWidget {
 
               Text(
                 'تمت الجلسة بنجاح',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic'),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: context.appColors.textPrimary, fontFamily: 'IBMPlexSansArabic'),
               ),
               const SizedBox(height: 8),
-              Text('إجمالي التقدم', style: TextStyle(fontSize: 16, color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic')),
+              Text('إجمالي التقدم', style: TextStyle(fontSize: 16, color: context.appColors.textSecondary, fontFamily: 'IBMPlexSansArabic')),
               const SizedBox(height: 8),
               Text(
                 '${(result.overallPercent * 100).toInt()}%',
@@ -86,9 +86,9 @@ class VoiceResultScreen extends ConsumerWidget {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: AppTheme.cardBackground,
+                    color: context.appColors.cardBackground,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppTheme.border.withOpacity(0.3)),
+                    border: Border.all(color: context.appColors.border.withOpacity(0.3)),
                   ),
                   child: ListView.separated(
                     padding: EdgeInsets.zero,
@@ -152,11 +152,11 @@ class _ResultItem extends StatelessWidget {
         children: [
           Expanded(
             flex: 2,
-            child: Text(indicator.name, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
+            child: Text(indicator.name, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: context.appColors.textPrimary, fontFamily: 'IBMPlexSansArabic')),
           ),
           Expanded(
             flex: 1,
-            child: Text('${(indicator.percent * 100).toInt()}%', textAlign: TextAlign.center, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
+            child: Text('${(indicator.percent * 100).toInt()}%', textAlign: TextAlign.center, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: context.appColors.textPrimary, fontFamily: 'IBMPlexSansArabic')),
           ),
           Expanded(
             flex: 1,

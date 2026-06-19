@@ -15,17 +15,17 @@ class IndicatorDetailsScreen extends ConsumerWidget {
     final detailAsync = ref.watch(indicatorDetailProvider);
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appColors.background,
       appBar: AppBar(
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.appColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.textPrimary, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.appColors.textPrimary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'تفاصيل المؤشر',
-          style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20),
+          style: TextStyle(color: context.appColors.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20),
         ),
         centerTitle: true,
       ),
@@ -44,16 +44,16 @@ class IndicatorDetailsScreen extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppTheme.cardBackground,
+                        color: context.appColors.cardBackground,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppTheme.border.withOpacity(0.3)),
+                        border: Border.all(color: context.appColors.border.withOpacity(0.3)),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           value: selectedIndicator,
                           isExpanded: true,
-                          icon: Icon(Icons.keyboard_arrow_down_rounded, color: AppTheme.textSecondary),
-                          style: TextStyle(color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic', fontSize: 16, fontWeight: FontWeight.w500),
+                          icon: Icon(Icons.keyboard_arrow_down_rounded, color: context.appColors.textSecondary),
+                          style: TextStyle(color: context.appColors.textPrimary, fontFamily: 'IBMPlexSansArabic', fontSize: 16, fontWeight: FontWeight.w500),
                           items: kIndicatorNames.map((v) => DropdownMenuItem(value: v, child: Text(v))).toList(),
                           onChanged: (v) {
                             if (v != null) ref.read(selectedIndicatorProvider.notifier).state = v;
@@ -77,7 +77,7 @@ class IndicatorDetailsScreen extends ConsumerWidget {
                           Container(
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              color: AppTheme.cardBackground,
+                              color: context.appColors.cardBackground,
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
                             ),
@@ -89,7 +89,7 @@ class IndicatorDetailsScreen extends ConsumerWidget {
                                     show: true,
                                     drawVerticalLine: false,
                                     horizontalInterval: 25,
-                                    getDrawingHorizontalLine: (_) => FlLine(color: AppTheme.border.withOpacity(0.3), strokeWidth: 1),
+                                    getDrawingHorizontalLine: (_) => FlLine(color: context.appColors.border.withOpacity(0.3), strokeWidth: 1),
                                   ),
                                   titlesData: FlTitlesData(
                                     leftTitles: AxisTitles(
@@ -97,7 +97,7 @@ class IndicatorDetailsScreen extends ConsumerWidget {
                                         showTitles: true,
                                         interval: 25,
                                         reservedSize: 36,
-                                        getTitlesWidget: (v, _) => Text('${v.toInt()}%', style: TextStyle(color: AppTheme.textSecondary, fontSize: 10, fontFamily: 'IBMPlexSansArabic')),
+                                        getTitlesWidget: (v, _) => Text('${v.toInt()}%', style: TextStyle(color: context.appColors.textSecondary, fontSize: 10, fontFamily: 'IBMPlexSansArabic')),
                                       ),
                                     ),
                                     bottomTitles: AxisTitles(
@@ -109,7 +109,7 @@ class IndicatorDetailsScreen extends ConsumerWidget {
                                           if (idx >= 0 && idx < detail.history.length) {
                                             return Padding(
                                               padding: const EdgeInsets.only(top: 8),
-                                              child: Text(detail.history[idx].date, style: TextStyle(color: AppTheme.textSecondary, fontSize: 10, fontFamily: 'IBMPlexSansArabic')),
+                                              child: Text(detail.history[idx].date, style: TextStyle(color: context.appColors.textSecondary, fontSize: 10, fontFamily: 'IBMPlexSansArabic')),
                                             );
                                           }
                                           return const SizedBox.shrink();
@@ -152,7 +152,7 @@ class IndicatorDetailsScreen extends ConsumerWidget {
                           Container(
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              color: AppTheme.cardBackground,
+                              color: context.appColors.cardBackground,
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
                             ),
@@ -160,15 +160,15 @@ class IndicatorDetailsScreen extends ConsumerWidget {
                               children: [
                                 Container(
                                   width: 20, height: 20,
-                                  decoration: BoxDecoration(border: Border.all(color: AppTheme.border, width: 1.5), borderRadius: BorderRadius.circular(4)),
+                                  decoration: BoxDecoration(border: Border.all(color: context.appColors.border, width: 1.5), borderRadius: BorderRadius.circular(4)),
                                 ),
                                 const SizedBox(width: 12),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('المجال الطبيعي', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
+                                    Text('المجال الطبيعي', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: context.appColors.textPrimary, fontFamily: 'IBMPlexSansArabic')),
                                     const SizedBox(height: 4),
-                                    Text(detail.naturalRange, style: TextStyle(fontSize: 14, color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic')),
+                                    Text(detail.naturalRange, style: TextStyle(fontSize: 14, color: context.appColors.textSecondary, fontFamily: 'IBMPlexSansArabic')),
                                   ],
                                 ),
                               ],
@@ -218,16 +218,16 @@ class _InfoCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.cardBackground,
+        color: context.appColors.cardBackground,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
+          Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: context.appColors.textPrimary, fontFamily: 'IBMPlexSansArabic')),
           const SizedBox(height: 8),
-          Text(body, style: TextStyle(fontSize: 14, color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic', height: 1.5)),
+          Text(body, style: TextStyle(fontSize: 14, color: context.appColors.textSecondary, fontFamily: 'IBMPlexSansArabic', height: 1.5)),
         ],
       ),
     );

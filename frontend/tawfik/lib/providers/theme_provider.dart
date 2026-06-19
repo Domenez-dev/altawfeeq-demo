@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../database/database_helper.dart';
-import '../theme/app_theme.dart';
 
 /// مفتاح حفظ الوضع الليلي في جدول الإعدادات.
 const _kDarkModeKey = 'dark_mode';
 
 /// يدير وضع الثيم (فاتح/ليلي) ويحفظ الاختيار محلياً عبر sqflite.
 ///
-/// عند كل تغيير يُحدّث [AppTheme.applyMode] أولاً (حتى تلتقط الشاشات الألوان
-/// الجديدة فوراً) ثم يبثّ الحالة لإعادة بناء الواجهة.
+/// تبديل الحالة يعيد بناء MaterialApp (يراقبها في main.dart)، وبما أن الشاشات
+/// تقرأ الألوان عبر `context.appColors` (المعتمِد على Theme.of) تُحدَّث كلها.
 class ThemeModeNotifier extends StateNotifier<ThemeMode> {
-  ThemeModeNotifier(super.initial) {
-    AppTheme.applyMode(state == ThemeMode.dark);
-  }
+  ThemeModeNotifier(super.initial);
 
   bool get isDark => state == ThemeMode.dark;
 
   Future<void> setDark(bool dark) async {
-    AppTheme.applyMode(dark);
     state = dark ? ThemeMode.dark : ThemeMode.light;
     await DatabaseHelper.instance.setSetting(_kDarkModeKey, dark ? '1' : '0');
   }

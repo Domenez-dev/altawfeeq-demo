@@ -14,15 +14,15 @@ class ProfileTab extends ConsumerWidget {
     final profileAsync = ref.watch(profileProvider);
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appColors.background,
       appBar: AppBar(
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.appColors.background,
         elevation: 0,
-        title: Text('الملف الشخصي', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20)),
+        title: Text('الملف الشخصي', style: TextStyle(color: context.appColors.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20)),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.settings_outlined, color: AppTheme.textPrimary),
+            icon: Icon(Icons.settings_outlined, color: context.appColors.textPrimary),
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AppSettingsScreen())),
           ),
         ],
@@ -38,9 +38,9 @@ class ProfileTab extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppTheme.cardBackground,
+                  color: context.appColors.cardBackground,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppTheme.border.withOpacity(0.3)),
+                  border: Border.all(color: context.appColors.border.withOpacity(0.3)),
                   boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
                 ),
                 child: Row(
@@ -61,14 +61,14 @@ class ProfileTab extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(profile.name, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
+                          Text(profile.name, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: context.appColors.textPrimary, fontFamily: 'IBMPlexSansArabic')),
                           const SizedBox(height: 4),
-                          Text(profile.email, style: TextStyle(fontSize: 14, color: AppTheme.textSecondary)),
+                          Text(profile.email, style: TextStyle(fontSize: 14, color: context.appColors.textSecondary)),
                         ],
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.edit_outlined, color: AppTheme.textSecondary),
+                      icon: Icon(Icons.edit_outlined, color: context.appColors.textSecondary),
                       onPressed: () => Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => EditProfileScreen(name: profile.name, email: profile.email)),
@@ -83,9 +83,9 @@ class ProfileTab extends ConsumerWidget {
               // Menu
               Container(
                 decoration: BoxDecoration(
-                  color: AppTheme.cardBackground,
+                  color: context.appColors.cardBackground,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppTheme.border.withOpacity(0.3)),
+                  border: Border.all(color: context.appColors.border.withOpacity(0.3)),
                   boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
                 ),
                 child: Column(
@@ -150,14 +150,14 @@ Future<void> _confirmLogout(BuildContext context) async {
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
-      backgroundColor: AppTheme.cardBackground,
+      backgroundColor: context.appColors.cardBackground,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: const Text('تسجيل الخروج', style: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.bold)),
       content: const Text('هل تريد تسجيل الخروج من التطبيق؟', style: TextStyle(fontFamily: 'IBMPlexSansArabic')),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx, false),
-          child: Text('إلغاء', style: TextStyle(fontFamily: 'IBMPlexSansArabic', color: AppTheme.textSecondary)),
+          child: Text('إلغاء', style: TextStyle(fontFamily: 'IBMPlexSansArabic', color: context.appColors.textSecondary)),
         ),
         TextButton(
           onPressed: () => Navigator.pop(ctx, true),
@@ -185,18 +185,18 @@ class _MenuItem extends StatelessWidget {
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: AppTheme.background, borderRadius: BorderRadius.circular(10)),
-        child: Icon(icon, color: AppTheme.textPrimary, size: 20),
+        decoration: BoxDecoration(color: context.appColors.background, borderRadius: BorderRadius.circular(10)),
+        child: Icon(icon, color: context.appColors.textPrimary, size: 20),
       ),
-      title: Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
+      title: Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.appColors.textPrimary, fontFamily: 'IBMPlexSansArabic')),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (trailingText != null) ...[
-            Text(trailingText!, style: TextStyle(fontSize: 14, color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic')),
+            Text(trailingText!, style: TextStyle(fontSize: 14, color: context.appColors.textSecondary, fontFamily: 'IBMPlexSansArabic')),
             const SizedBox(width: 8),
           ],
-          Icon(Icons.arrow_forward_ios_rounded, color: AppTheme.textSecondary, size: 16),
+          Icon(Icons.arrow_forward_ios_rounded, color: context.appColors.textSecondary, size: 16),
         ],
       ),
       onTap: onTap,

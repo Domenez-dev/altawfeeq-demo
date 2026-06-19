@@ -150,10 +150,10 @@ class _SmartwatchesScreenState extends State<SmartwatchesScreen> {
     final isTablet = screenWidth > 600;
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appColors.background,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.appColors.background,
         leading: IconButton(
           icon: Container(
             padding: const EdgeInsets.all(8),
@@ -252,7 +252,7 @@ class _SmartwatchesScreenState extends State<SmartwatchesScreen> {
           Text(
             'جاري التحميل...',
             style: TextStyle(
-              color: AppTheme.textSecondary,
+              color: context.appColors.textSecondary,
               fontSize: 16,
               fontFamily: 'IBMPlexSansArabic',
             ),
@@ -305,7 +305,7 @@ class _SmartwatchesScreenState extends State<SmartwatchesScreen> {
               'ابدأ بإضافة ساعة ذكية لتتبع بياناتك الصحية',
               style: TextStyle(
                 fontSize: 15,
-                color: AppTheme.textSecondary,
+                color: context.appColors.textSecondary,
                 fontFamily: 'IBMPlexSansArabic',
               ),
               textAlign: TextAlign.center,
@@ -440,14 +440,14 @@ class _SmartwatchesScreenState extends State<SmartwatchesScreen> {
                               Icon(
                                 Icons.location_on_rounded,
                                 size: isTiny ? 13 : 14,
-                                color: AppTheme.textSecondary.withOpacity(0.7),
+                                color: context.appColors.textSecondary.withOpacity(0.7),
                               ),
                               const SizedBox(width: 4),
                               Expanded(
                                 child: Text(
                                   watch.address,
                                   style: TextStyle(
-                                    color: AppTheme.textSecondary,
+                                    color: context.appColors.textSecondary,
                                     fontSize: addressFontSize,
                                     fontFamily: 'IBMPlexSansArabic',
                                     height: 1.3,

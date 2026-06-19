@@ -103,10 +103,10 @@ class _SmartwatchFormScreenState extends State<SmartwatchFormScreen> {
     final isTablet = screenWidth > 600;
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appColors.background,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.appColors.background,
         leading: IconButton(
           icon: Container(
             padding: const EdgeInsets.all(8),
@@ -243,7 +243,7 @@ class _SmartwatchFormScreenState extends State<SmartwatchFormScreen> {
                       : 'أدخل معلومات المريض والساعة',
                   style: TextStyle(
                     fontSize: 13,
-                    color: AppTheme.textSecondary,
+                    color: context.appColors.textSecondary,
                     fontFamily: 'IBMPlexSansArabic',
                   ),
                 ),
@@ -259,9 +259,9 @@ class _SmartwatchFormScreenState extends State<SmartwatchFormScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppTheme.cardBackground,
+        color: context.appColors.cardBackground,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.border.withOpacity(0.3), width: 1),
+        border: Border.all(color: context.appColors.border.withOpacity(0.3), width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -379,12 +379,12 @@ class _SmartwatchFormScreenState extends State<SmartwatchFormScreen> {
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
-              color: AppTheme.textSecondary.withOpacity(0.5),
+              color: context.appColors.textSecondary.withOpacity(0.5),
               fontSize: 14,
               fontFamily: 'IBMPlexSansArabic',
             ),
             filled: true,
-            fillColor: AppTheme.background,
+            fillColor: context.appColors.background,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 16,
@@ -392,14 +392,14 @@ class _SmartwatchFormScreenState extends State<SmartwatchFormScreen> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(
-                color: AppTheme.border.withOpacity(0.3),
+                color: context.appColors.border.withOpacity(0.3),
                 width: 1,
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(
-                color: AppTheme.border.withOpacity(0.3),
+                color: context.appColors.border.withOpacity(0.3),
                 width: 1,
               ),
             ),

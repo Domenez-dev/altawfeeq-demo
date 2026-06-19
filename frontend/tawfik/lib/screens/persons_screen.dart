@@ -103,7 +103,7 @@ class _PersonsScreenState extends State<PersonsScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          backgroundColor: AppTheme.cardBackground,
+          backgroundColor: context.appColors.cardBackground,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
@@ -170,7 +170,7 @@ class _PersonsScreenState extends State<PersonsScreen> {
                     width: 160,
                     height: 160,
                     decoration: BoxDecoration(
-                      color: AppTheme.background,
+                      color: context.appColors.background,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                         color: AppTheme.primaryPurple.withOpacity(0.2),
@@ -206,7 +206,7 @@ class _PersonsScreenState extends State<PersonsScreen> {
                               Text(
                                 'اضغط لاختيار صورة',
                                 style: TextStyle(
-                                  color: AppTheme.textSecondary,
+                                  color: context.appColors.textSecondary,
                                   fontFamily: 'IBMPlexSansArabic',
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
@@ -258,12 +258,12 @@ class _PersonsScreenState extends State<PersonsScreen> {
                       decoration: InputDecoration(
                         hintText: 'أدخل الإسم الكامل',
                         hintStyle: TextStyle(
-                          color: AppTheme.textSecondary.withOpacity(0.5),
+                          color: context.appColors.textSecondary.withOpacity(0.5),
                           fontSize: 14,
                           fontFamily: 'IBMPlexSansArabic',
                         ),
                         filled: true,
-                        fillColor: AppTheme.background,
+                        fillColor: context.appColors.background,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 16,
@@ -271,13 +271,13 @@ class _PersonsScreenState extends State<PersonsScreen> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide(
-                            color: AppTheme.border.withOpacity(0.3),
+                            color: context.appColors.border.withOpacity(0.3),
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide(
-                            color: AppTheme.border.withOpacity(0.3),
+                            color: context.appColors.border.withOpacity(0.3),
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
@@ -307,7 +307,7 @@ class _PersonsScreenState extends State<PersonsScreen> {
                 'إلغاء',
                 style: TextStyle(
                   fontFamily: 'IBMPlexSansArabic',
-                  color: AppTheme.textSecondary,
+                  color: context.appColors.textSecondary,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),
@@ -381,7 +381,7 @@ class _PersonsScreenState extends State<PersonsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppTheme.cardBackground,
+        backgroundColor: context.appColors.cardBackground,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Row(
           children: [
@@ -419,7 +419,7 @@ class _PersonsScreenState extends State<PersonsScreen> {
               'إلغاء',
               style: TextStyle(
                 fontFamily: 'IBMPlexSansArabic',
-                color: AppTheme.textSecondary,
+                color: context.appColors.textSecondary,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -471,10 +471,10 @@ class _PersonsScreenState extends State<PersonsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appColors.background,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.appColors.background,
         leading: IconButton(
           icon: Container(
             padding: const EdgeInsets.all(8),
@@ -554,7 +554,7 @@ class _PersonsScreenState extends State<PersonsScreen> {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: AppTheme.textPrimary,
+                color: context.appColors.textPrimary,
                 fontFamily: 'IBMPlexSansArabic',
               ),
               textAlign: TextAlign.center,
@@ -564,7 +564,7 @@ class _PersonsScreenState extends State<PersonsScreen> {
               'اضغط على الزر أدناه لإضافة شخص جديد\nوتعريفه في النظام',
               style: TextStyle(
                 fontSize: 15,
-                color: AppTheme.textSecondary,
+                color: context.appColors.textSecondary,
                 fontFamily: 'IBMPlexSansArabic',
                 height: 1.5,
               ),
@@ -641,9 +641,9 @@ class _PersonCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: AppTheme.cardBackground,
+          color: context.appColors.cardBackground,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppTheme.border.withOpacity(0.3), width: 1),
+          border: Border.all(color: context.appColors.border.withOpacity(0.3), width: 1),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.04),
@@ -722,14 +722,14 @@ class _PersonCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               decoration: BoxDecoration(
-                color: AppTheme.background,
+                color: context.appColors.background,
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(20),
                 ),
                 border: Border(
                   top: BorderSide(
-                    color: AppTheme.border.withOpacity(0.2),
+                    color: context.appColors.border.withOpacity(0.2),
                     width: 1,
                   ),
                 ),
@@ -758,7 +758,7 @@ class _PersonCard extends StatelessWidget {
                       Icon(
                         Icons.volume_up_rounded,
                         size: 14,
-                        color: AppTheme.textSecondary,
+                        color: context.appColors.textSecondary,
                       ),
                       const SizedBox(width: 4),
                       Flexible(
@@ -766,7 +766,7 @@ class _PersonCard extends StatelessWidget {
                           'اضغط للاستماع',
                           style: TextStyle(
                             fontSize: 11,
-                            color: AppTheme.textSecondary,
+                            color: context.appColors.textSecondary,
                             fontFamily: 'IBMPlexSansArabic',
                           ),
                           maxLines: 1,

@@ -16,11 +16,11 @@ class ReportsTab extends ConsumerWidget {
     final periodLabels = ['أسبوعي', 'شهري', 'كل الفترة'];
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appColors.background,
       appBar: AppBar(
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.appColors.background,
         elevation: 0,
-        title: Text('التقارير', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20)),
+        title: Text('التقارير', style: TextStyle(color: context.appColors.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20)),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -31,9 +31,9 @@ class ReportsTab extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: AppTheme.cardBackground,
+                color: context.appColors.cardBackground,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppTheme.border.withOpacity(0.3)),
+                border: Border.all(color: context.appColors.border.withOpacity(0.3)),
               ),
               child: Row(
                 children: List.generate(3, (i) => Expanded(
@@ -49,7 +49,7 @@ class ReportsTab extends ConsumerWidget {
                         periodLabels[i],
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: period == i ? Colors.white : AppTheme.textSecondary,
+                          color: period == i ? Colors.white : context.appColors.textSecondary,
                           fontWeight: period == i ? FontWeight.bold : FontWeight.normal,
                           fontFamily: 'IBMPlexSansArabic',
                           fontSize: 14,
@@ -104,20 +104,20 @@ class _ReportContent extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppTheme.cardBackground,
+            color: context.appColors.cardBackground,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('متوسط التقدم', style: TextStyle(fontSize: 14, color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic')),
+              Text('متوسط التقدم', style: TextStyle(fontSize: 14, color: context.appColors.textSecondary, fontFamily: 'IBMPlexSansArabic')),
               const SizedBox(height: 8),
               Row(
                 children: [
                   Text(
                     '${(report.averagePercent * 100).toInt()}%',
-                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic'),
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: context.appColors.textPrimary, fontFamily: 'IBMPlexSansArabic'),
                   ),
                   const SizedBox(width: 12),
                   Text(
@@ -162,14 +162,14 @@ class _ReportContent extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppTheme.cardBackground,
+            color: context.appColors.cardBackground,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('توزيع المؤشرات', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
+              Text('توزيع المؤشرات', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: context.appColors.textPrimary, fontFamily: 'IBMPlexSansArabic')),
               const SizedBox(height: 20),
               Row(
                 children: [
@@ -192,7 +192,7 @@ class _ReportContent extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text('${(report.averagePercent * 100).toInt()}%', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                              Text('متوسط', style: TextStyle(fontSize: 10, color: AppTheme.textSecondary)),
+                              Text('متوسط', style: TextStyle(fontSize: 10, color: context.appColors.textSecondary)),
                             ],
                           ),
                         ),
@@ -223,7 +223,7 @@ class _ReportContent extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
           decoration: BoxDecoration(
-            color: AppTheme.cardBackground,
+            color: context.appColors.cardBackground,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
           ),
@@ -235,7 +235,7 @@ class _ReportContent extends StatelessWidget {
                 children: [
                   const Text('عدد الجلسات', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic')),
                   const SizedBox(height: 4),
-                  Text('جلسات', style: TextStyle(fontSize: 16, color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic')),
+                  Text('جلسات', style: TextStyle(fontSize: 16, color: context.appColors.textSecondary, fontFamily: 'IBMPlexSansArabic')),
                 ],
               ),
               Text(report.sessionsCount.toString(), style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic')),

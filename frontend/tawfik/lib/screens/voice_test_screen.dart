@@ -18,17 +18,17 @@ class VoiceTestScreen extends ConsumerWidget {
     final notifier = ref.read(voiceTestProvider.notifier);
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appColors.background,
       appBar: AppBar(
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.appColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.textPrimary, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.appColors.textPrimary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'المؤشر الحالي',
-          style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20),
+          style: TextStyle(color: context.appColors.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20),
         ),
         centerTitle: true,
       ),
@@ -43,16 +43,16 @@ class VoiceTestScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.cardBackground,
+                  color: context.appColors.cardBackground,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.border.withOpacity(0.3)),
+                  border: Border.all(color: context.appColors.border.withOpacity(0.3)),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: state.selectedIndicator,
                     isExpanded: true,
-                    icon: Icon(Icons.keyboard_arrow_down_rounded, color: AppTheme.textSecondary),
-                    style: TextStyle(color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic', fontSize: 16, fontWeight: FontWeight.w500),
+                    icon: Icon(Icons.keyboard_arrow_down_rounded, color: context.appColors.textSecondary),
+                    style: TextStyle(color: context.appColors.textPrimary, fontFamily: 'IBMPlexSansArabic', fontSize: 16, fontWeight: FontWeight.w500),
                     items: kIndicatorNames.map((v) => DropdownMenuItem(value: v, child: Text(v))).toList(),
                     onChanged: (v) { if (v != null) notifier.selectIndicator(v); },
                   ),
@@ -90,7 +90,7 @@ class VoiceTestScreen extends ConsumerWidget {
                                       : state.isPaused
                                           ? 'متوقف مؤقتاً'
                                           : 'جاهز',
-                              style: TextStyle(fontSize: 18, color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w600),
+                              style: TextStyle(fontSize: 18, color: context.appColors.textSecondary, fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w600),
                             ),
                           ],
                         ),
@@ -136,14 +136,14 @@ class VoiceTestScreen extends ConsumerWidget {
 
               Text(
                 state.formattedTime,
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic'),
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: context.appColors.textPrimary, fontFamily: 'IBMPlexSansArabic'),
               ),
 
               const SizedBox(height: 6),
 
               Text(
                 'تحدث الآن بصوتك الطبيعي',
-                style: TextStyle(fontSize: 15, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w500),
+                style: TextStyle(fontSize: 15, color: context.appColors.textPrimary, fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.w500),
               ),
 
               const SizedBox(height: 4),
@@ -252,7 +252,7 @@ class _ControlButton extends StatelessWidget {
         width: isMain ? 72 : 56,
         height: isMain ? 72 : 56,
         decoration: BoxDecoration(
-          color: isMain ? AppTheme.primaryPurple : AppTheme.cardBackground,
+          color: isMain ? AppTheme.primaryPurple : context.appColors.cardBackground,
           shape: BoxShape.circle,
           boxShadow: [BoxShadow(color: (isMain ? AppTheme.primaryPurple : Colors.black).withOpacity(0.15), blurRadius: 15, offset: const Offset(0, 5))],
         ),

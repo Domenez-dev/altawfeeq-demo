@@ -9,7 +9,6 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // حمّل الوضع المحفوظ (فاتح/ليلي) قبل تشغيل الواجهة لتفادي وميض التبديل.
   final initialMode = await loadStoredThemeMode();
-  AppTheme.applyMode(initialMode == ThemeMode.dark);
 
   runApp(
     ProviderScope(

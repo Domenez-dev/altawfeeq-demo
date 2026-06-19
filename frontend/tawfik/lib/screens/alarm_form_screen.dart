@@ -142,10 +142,10 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
     final isTablet = screenWidth > 600;
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appColors.background,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.appColors.background,
         leading: IconButton(
           icon: Container(
             padding: const EdgeInsets.all(8),
@@ -287,7 +287,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                       : 'حدد الدواء ووقت الإستهلاك',
                   style: TextStyle(
                     fontSize: 13,
-                    color: AppTheme.textSecondary,
+                    color: context.appColors.textSecondary,
                     fontFamily: 'IBMPlexSansArabic',
                   ),
                 ),
@@ -303,9 +303,9 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.cardBackground,
+        color: context.appColors.cardBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.border.withOpacity(0.3), width: 1),
+        border: Border.all(color: context.appColors.border.withOpacity(0.3), width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.03),
@@ -337,7 +337,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                   'المريض',
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppTheme.textSecondary,
+                    color: context.appColors.textSecondary,
                     fontFamily: 'IBMPlexSansArabic',
                   ),
                 ),
@@ -347,7 +347,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
+                    color: context.appColors.textPrimary,
                     fontFamily: 'IBMPlexSansArabic',
                   ),
                 ),
@@ -390,9 +390,9 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppTheme.cardBackground,
+        color: context.appColors.cardBackground,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.border.withOpacity(0.3), width: 1),
+        border: Border.all(color: context.appColors.border.withOpacity(0.3), width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -485,12 +485,12 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
-              color: AppTheme.textSecondary.withOpacity(0.5),
+              color: context.appColors.textSecondary.withOpacity(0.5),
               fontSize: 14,
               fontFamily: 'IBMPlexSansArabic',
             ),
             filled: true,
-            fillColor: AppTheme.background,
+            fillColor: context.appColors.background,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 16,
@@ -498,14 +498,14 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(
-                color: AppTheme.border.withOpacity(0.3),
+                color: context.appColors.border.withOpacity(0.3),
                 width: 1,
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(
-                color: AppTheme.border.withOpacity(0.3),
+                color: context.appColors.border.withOpacity(0.3),
                 width: 1,
               ),
             ),
@@ -573,10 +573,10 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
             decoration: BoxDecoration(
-              color: AppTheme.background,
+              color: context.appColors.background,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: AppTheme.border.withOpacity(0.3),
+                color: context.appColors.border.withOpacity(0.3),
                 width: 1,
               ),
             ),
@@ -610,7 +610,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                         'الوقت المحدد',
                         style: TextStyle(
                           fontSize: 12,
-                          color: AppTheme.textSecondary,
+                          color: context.appColors.textSecondary,
                           fontFamily: 'IBMPlexSansArabic',
                         ),
                       ),
@@ -620,7 +620,7 @@ class _AlarmFormScreenState extends State<AlarmFormScreen> {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: AppTheme.textPrimary,
+                          color: context.appColors.textPrimary,
                           fontFamily: 'IBMPlexSansArabic',
                         ),
                       ),

@@ -20,15 +20,15 @@ class MoreScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appColors.background,
       appBar: AppBar(
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.appColors.background,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppTheme.textPrimary, size: 20),
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: context.appColors.textPrimary, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(title, style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20)),
+        title: Text(title, style: TextStyle(color: context.appColors.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20)),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -41,21 +41,21 @@ class MoreScaffold extends StatelessWidget {
   }
 }
 
-Widget _card({required Widget child}) => Container(
+Widget _card(BuildContext context, {required Widget child}) => Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: AppTheme.cardBackground,
+        color: context.appColors.cardBackground,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.border.withOpacity(0.3)),
+        border: Border.all(color: context.appColors.border.withOpacity(0.3)),
         boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: child,
     );
 
-TextStyle get _titleStyle => TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic');
-TextStyle get _bodyStyle => TextStyle(fontSize: 14, color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic', height: 1.6);
+TextStyle _titleStyle(BuildContext context) => TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: context.appColors.textPrimary, fontFamily: 'IBMPlexSansArabic');
+TextStyle _bodyStyle(BuildContext context) => TextStyle(fontSize: 14, color: context.appColors.textSecondary, fontFamily: 'IBMPlexSansArabic', height: 1.6);
 
 // ─── الهدف العلاجي ──────────────────────────────────────────────────────────
 
@@ -69,7 +69,7 @@ class TherapeuticGoalScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _card(
+          _card(context,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -90,19 +90,19 @@ class TherapeuticGoalScreen extends StatelessWidget {
                   circularStrokeCap: CircularStrokeCap.round,
                 ),
                 const SizedBox(height: 16),
-                Text('هدفك الأسبوعي: 5 جلسات', style: _titleStyle),
+                Text('هدفك الأسبوعي: 5 جلسات', style: _titleStyle(context)),
                 const SizedBox(height: 4),
-                Text('أنجزت 3 من 5 جلسات هذا الأسبوع', style: _bodyStyle, textAlign: TextAlign.center),
+                Text('أنجزت 3 من 5 جلسات هذا الأسبوع', style: _bodyStyle(context), textAlign: TextAlign.center),
               ],
             ),
           ),
-          _card(
+          _card(context,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('نصيحة', style: _titleStyle),
+                Text('نصيحة', style: _titleStyle(context)),
                 const SizedBox(height: 8),
-                Text('الانتظام في أداء الجلسات اليومية يساعد على متابعة تطوّر المؤشرات الصوتية بدقة أكبر.', style: _bodyStyle),
+                Text('الانتظام في أداء الجلسات اليومية يساعد على متابعة تطوّر المؤشرات الصوتية بدقة أكبر.', style: _bodyStyle(context)),
               ],
             ),
           ),
@@ -130,7 +130,7 @@ class VocalIndicatorsInfoScreen extends StatelessWidget {
       title: 'المؤشرات الصوتية',
       child: Column(
         children: kIndicatorNames.map((name) {
-          return _card(
+          return _card(context,
             child: Row(
               children: [
                 Container(
@@ -143,9 +143,9 @@ class VocalIndicatorsInfoScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(name, style: _titleStyle),
+                      Text(name, style: _titleStyle(context)),
                       const SizedBox(height: 4),
-                      Text(_descriptions[name] ?? '', style: _bodyStyle),
+                      Text(_descriptions[name] ?? '', style: _bodyStyle(context)),
                     ],
                   ),
                 ),
@@ -177,10 +177,10 @@ class _SessionRemindersScreenState extends State<SessionRemindersScreen> {
       title: 'تذكيرات الجلسات',
       child: Column(
         children: [
-          _card(
+          _card(context,
             child: Row(
               children: [
-                Expanded(child: Text('تفعيل التذكير اليومي', style: _titleStyle)),
+                Expanded(child: Text('تفعيل التذكير اليومي', style: _titleStyle(context))),
                 Switch(
                   value: _enabled,
                   activeColor: AppTheme.primaryPurple,
@@ -189,13 +189,13 @@ class _SessionRemindersScreenState extends State<SessionRemindersScreen> {
               ],
             ),
           ),
-          _card(
+          _card(context,
             child: ListTile(
               contentPadding: EdgeInsets.zero,
               enabled: _enabled,
               leading: const Icon(Icons.access_time_rounded, color: AppTheme.primaryPurple),
-              title: Text('وقت التذكير', style: _titleStyle),
-              trailing: Text(_time.format(context), style: _titleStyle),
+              title: Text('وقت التذكير', style: _titleStyle(context)),
+              trailing: Text(_time.format(context), style: _titleStyle(context)),
               onTap: !_enabled
                   ? null
                   : () async {
@@ -227,12 +227,17 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(themeModeProvider) == ThemeMode.dark;
 
-    Widget toggle(String title, bool value, ValueChanged<bool> onChanged) => _card(
-          child: Row(
-            children: [
-              Expanded(child: Text(title, style: _titleStyle)),
-              Switch(value: value, activeColor: AppTheme.primaryPurple, onChanged: onChanged),
-            ],
+    // الصندوق بأكمله قابل للنقر لتبديل الإعداد (وليس مفتاح التبديل فقط).
+    Widget toggle(String title, bool value, ValueChanged<bool> onChanged) => _card(context,
+          child: InkWell(
+            onTap: () => onChanged(!value),
+            borderRadius: BorderRadius.circular(12),
+            child: Row(
+              children: [
+                Expanded(child: Text(title, style: _titleStyle(context))),
+                Switch(value: value, activeColor: AppTheme.primaryPurple, onChanged: onChanged),
+              ],
+            ),
           ),
         );
 
@@ -244,12 +249,12 @@ class _AppSettingsScreenState extends ConsumerState<AppSettingsScreen> {
           toggle('أصوات التطبيق', _sounds, (v) => setState(() => _sounds = v)),
           toggle('الوضع الليلي', isDarkMode,
               (v) => ref.read(themeModeProvider.notifier).setDark(v)),
-          _card(
+          _card(context,
             child: ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.language_rounded, color: AppTheme.primaryPurple),
-              title: Text('اللغة', style: _titleStyle),
-              trailing: Text('العربية', style: _bodyStyle),
+              title: Text('اللغة', style: _titleStyle(context)),
+              trailing: Text('العربية', style: _bodyStyle(context)),
               onTap: () {},
             ),
           ),
@@ -280,17 +285,17 @@ class HelpScreen extends StatelessWidget {
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
             decoration: BoxDecoration(
-              color: AppTheme.cardBackground,
+              color: context.appColors.cardBackground,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppTheme.border.withOpacity(0.3)),
+              border: Border.all(color: context.appColors.border.withOpacity(0.3)),
             ),
             child: Theme(
               data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
                 shape: const Border(),
-                title: Text(item[0], style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
+                title: Text(item[0], style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: context.appColors.textPrimary, fontFamily: 'IBMPlexSansArabic')),
                 childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                children: [Align(alignment: Alignment.centerRight, child: Text(item[1], style: _bodyStyle))],
+                children: [Align(alignment: Alignment.centerRight, child: Text(item[1], style: _bodyStyle(context)))],
               ),
             ),
           );
@@ -322,7 +327,7 @@ class AboutScreen extends StatelessWidget {
             child: const Icon(Icons.graphic_eq_rounded, size: 48, color: AppTheme.primaryPurple),
           ),
           const SizedBox(height: 16),
-          Text('التوفيق', style: _titleStyle.copyWith(fontSize: 24)),
+          Text('التوفيق', style: _titleStyle(context).copyWith(fontSize: 24)),
           const SizedBox(height: 4),
           // الإصدار يُقرأ ديناميكياً من pubspec.yaml (الحقل version) عبر
           // package_info_plus. لتحديث الإصدار: زِد رقم النسخة في pubspec.yaml
@@ -331,14 +336,14 @@ class AboutScreen extends StatelessWidget {
             future: PackageInfo.fromPlatform(),
             builder: (context, snapshot) {
               final version = snapshot.hasData ? snapshot.data!.version : '...';
-              return Text('الإصدار $version', style: _bodyStyle);
+              return Text('الإصدار $version', style: _bodyStyle(context));
             },
           ),
           const SizedBox(height: 24),
-          _card(
+          _card(context,
             child: Text(
               'تطبيق ذكي لمتابعة المؤشرات الصوتية، يساعد على تحليل الصوت واكتشاف العلامات المبكرة من خلال تسجيلات قصيرة للحرف المستمر "آآآ".',
-              style: _bodyStyle,
+              style: _bodyStyle(context),
               textAlign: TextAlign.center,
             ),
           ),
@@ -373,17 +378,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget _field(String label, TextEditingController ctrl) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: _titleStyle),
+          Text(label, style: _titleStyle(context)),
           const SizedBox(height: 8),
           TextField(
             controller: ctrl,
             style: const TextStyle(fontFamily: 'IBMPlexSansArabic'),
             decoration: InputDecoration(
               filled: true,
-              fillColor: AppTheme.cardBackground,
+              fillColor: context.appColors.cardBackground,
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppTheme.border.withOpacity(0.3))),
-              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppTheme.border.withOpacity(0.3))),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.appColors.border.withOpacity(0.3))),
+              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: context.appColors.border.withOpacity(0.3))),
               focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppTheme.primaryPurple)),
             ),
           ),

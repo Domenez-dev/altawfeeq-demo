@@ -20,7 +20,7 @@ class SessionsTab extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.cardBackground,
+        backgroundColor: context.appColors.cardBackground,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('حذف الجلسات', style: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.bold)),
         content: Text('سيتم حذف ${ids.length} جلسة. لا يمكن التراجع عن هذا الإجراء.',
@@ -28,7 +28,7 @@ class SessionsTab extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text('إلغاء', style: TextStyle(fontFamily: 'IBMPlexSansArabic', color: AppTheme.textSecondary)),
+            child: Text('إلغاء', style: TextStyle(fontFamily: 'IBMPlexSansArabic', color: context.appColors.textSecondary)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -74,20 +74,20 @@ class SessionsTab extends ConsumerWidget {
         if (!didPop) ref.read(sessionSelectionProvider.notifier).clear();
       },
       child: Scaffold(
-        backgroundColor: AppTheme.background,
+        backgroundColor: context.appColors.background,
         appBar: AppBar(
-          backgroundColor: AppTheme.background,
+          backgroundColor: context.appColors.background,
           elevation: 0,
           centerTitle: true,
           leading: selectionMode
               ? IconButton(
-                  icon: Icon(Icons.close_rounded, color: AppTheme.textPrimary),
+                  icon: Icon(Icons.close_rounded, color: context.appColors.textPrimary),
                   onPressed: () => ref.read(sessionSelectionProvider.notifier).clear(),
                 )
               : null,
           title: Text(
             selectionMode ? '${selected.length} محددة' : 'جلساتي',
-            style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20),
+            style: TextStyle(color: context.appColors.textPrimary, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', fontSize: 20),
           ),
           actions: selectionMode
               ? [
@@ -108,9 +108,9 @@ class SessionsTab extends ConsumerWidget {
                 child: Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: AppTheme.cardBackground,
+                    color: context.appColors.cardBackground,
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: AppTheme.border.withOpacity(0.3)),
+                    border: Border.all(color: context.appColors.border.withOpacity(0.3)),
                   ),
                   child: Row(
                     children: List.generate(3, (i) => Expanded(
@@ -126,7 +126,7 @@ class SessionsTab extends ConsumerWidget {
                             filterLabels[i],
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: filter == i ? Colors.white : AppTheme.textSecondary,
+                              color: filter == i ? Colors.white : context.appColors.textSecondary,
                               fontWeight: filter == i ? FontWeight.bold : FontWeight.normal,
                               fontFamily: 'IBMPlexSansArabic',
                               fontSize: 14,
@@ -144,10 +144,10 @@ class SessionsTab extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                   child: Row(
                     children: [
-                      Icon(Icons.info_outline_rounded, size: 14, color: AppTheme.textSecondary.withOpacity(0.7)),
+                      Icon(Icons.info_outline_rounded, size: 14, color: context.appColors.textSecondary.withOpacity(0.7)),
                       const SizedBox(width: 6),
                       Text('اضغط مطوّلاً لتحديد وحذف الجلسات',
-                          style: TextStyle(fontSize: 11.5, color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic')),
+                          style: TextStyle(fontSize: 11.5, color: context.appColors.textSecondary, fontFamily: 'IBMPlexSansArabic')),
                     ],
                   ),
                 ),
@@ -159,7 +159,7 @@ class SessionsTab extends ConsumerWidget {
                   error: (e, _) => ErrorRetryView(error: e, onRetry: () => ref.invalidate(sessionsProvider)),
                   data: (sessions) => sessions.isEmpty
                       ? Center(
-                          child: Text('لا توجد جلسات', style: TextStyle(color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic', fontSize: 16)),
+                          child: Text('لا توجد جلسات', style: TextStyle(color: context.appColors.textSecondary, fontFamily: 'IBMPlexSansArabic', fontSize: 16)),
                         )
                       : ListView.builder(
                           padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
@@ -227,10 +227,10 @@ class _SessionItem extends ConsumerWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryPurple.withOpacity(0.06) : AppTheme.cardBackground,
+          color: isSelected ? AppTheme.primaryPurple.withOpacity(0.06) : context.appColors.cardBackground,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? AppTheme.primaryPurple : AppTheme.border.withOpacity(0.3),
+            color: isSelected ? AppTheme.primaryPurple : context.appColors.border.withOpacity(0.3),
             width: isSelected ? 1.5 : 1,
           ),
           boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
@@ -243,7 +243,7 @@ class _SessionItem extends ConsumerWidget {
                 if (selectionMode) ...[
                   Icon(
                     isSelected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-                    color: isSelected ? AppTheme.primaryPurple : AppTheme.textSecondary.withOpacity(0.4),
+                    color: isSelected ? AppTheme.primaryPurple : context.appColors.textSecondary.withOpacity(0.4),
                     size: 24,
                   ),
                   const SizedBox(width: 12),
@@ -251,14 +251,14 @@ class _SessionItem extends ConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(session.title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textPrimary, fontFamily: 'IBMPlexSansArabic')),
+                    Text(session.title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: context.appColors.textPrimary, fontFamily: 'IBMPlexSansArabic')),
                     const SizedBox(height: 4),
                     Row(children: [
-                      Text(session.time, style: TextStyle(fontSize: 12, color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic')),
+                      Text(session.time, style: TextStyle(fontSize: 12, color: context.appColors.textSecondary, fontFamily: 'IBMPlexSansArabic')),
                       const SizedBox(width: 8),
-                      Text('-', style: TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+                      Text('-', style: TextStyle(fontSize: 12, color: context.appColors.textSecondary)),
                       const SizedBox(width: 8),
-                      Text(session.date, style: TextStyle(fontSize: 12, color: AppTheme.textSecondary, fontFamily: 'IBMPlexSansArabic')),
+                      Text(session.date, style: TextStyle(fontSize: 12, color: context.appColors.textSecondary, fontFamily: 'IBMPlexSansArabic')),
                     ]),
                   ],
                 ),

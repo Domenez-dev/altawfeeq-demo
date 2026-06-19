@@ -22,7 +22,7 @@ class CustomCard extends StatelessWidget {
     final content = Container(
       margin: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: backgroundColor ?? AppTheme.cardBackground,
+        color: backgroundColor ?? context.appColors.cardBackground,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(

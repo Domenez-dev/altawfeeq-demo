@@ -41,7 +41,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: context.appColors.background,
       body: IndexedStack(
         index: _currentIndex,
         children: _pages,
@@ -62,7 +62,7 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         notchMargin: 8.0,
-        color: AppTheme.cardBackground,
+        color: context.appColors.cardBackground,
         elevation: 20,
         child: SizedBox(
           height: 65,
@@ -83,7 +83,7 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _buildNavItem(int index, IconData icon, String label) {
     final isSelected = _currentIndex == index;
-    final color = isSelected ? AppTheme.primaryPurple : AppTheme.textSecondary.withOpacity(0.5);
+    final color = isSelected ? AppTheme.primaryPurple : context.appColors.textSecondary.withOpacity(0.5);
 
     return InkWell(
       onTap: () => _onItemTapped(index),

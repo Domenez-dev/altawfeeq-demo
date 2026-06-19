@@ -26,26 +26,9 @@ class AppTheme {
   static const Color _darkTextSecondary = Color(0xFFA89FC2);
   static const Color _darkBorder = Color(0xFF35304A);
 
-  // ── الألوان المتبدّلة حسب الوضع ─────────────────────────────────────
-  // هذه الحقول تتغيّر وقت التشغيل عند تبديل الثيم عبر [applyMode]، وتُستعمل
-  // مباشرةً في كل الشاشات (background / cardBackground / textPrimary ...).
-  static bool isDark = false;
-  static Color background = _lightBackground;
-  static Color cardBackground = _lightSurface;
-  static Color textPrimary = _lightTextPrimary;
-  static Color textSecondary = _lightTextSecondary;
-  static Color border = _lightBorder;
-
-  /// يُحدّث الألوان المتبدّلة لتطابق الوضع المختار. يجب استدعاؤها قبل إعادة
-  /// بناء الواجهة (تتكفّل بذلك ThemeModeNotifier).
-  static void applyMode(bool dark) {
-    isDark = dark;
-    background = dark ? _darkBackground : _lightBackground;
-    cardBackground = dark ? _darkSurface : _lightSurface;
-    textPrimary = dark ? _darkTextPrimary : _lightTextPrimary;
-    textSecondary = dark ? _darkTextSecondary : _lightTextSecondary;
-    border = dark ? _darkBorder : _lightBorder;
-  }
+  // الألوان المتبدّلة حسب الوضع تُقرأ من السياق عبر `context.appColors`
+  // (انظر [AppColors] و[AppColorsContext] في أسفل الملف). الاعتماد على
+  // `Theme.of(context)` يضمن إعادة بناء كل الشاشات فور تبديل الثيم.
 
   static ThemeData get lightTheme => _build(dark: false);
   static ThemeData get darkTheme => _build(dark: true);
@@ -62,6 +45,10 @@ class AppTheme {
       brightness: dark ? Brightness.dark : Brightness.light,
       fontFamily: 'IBMPlexSansArabic',
       scaffoldBackgroundColor: bg,
+
+      extensions: <ThemeExtension<dynamic>>[
+        dark ? AppColors.dark : AppColors.light,
+      ],
 
       colorScheme: (dark ? const ColorScheme.dark() : const ColorScheme.light()).copyWith(
         brightness: dark ? Brightness.dark : Brightness.light,
@@ -237,4 +224,76 @@ class AppTheme {
       ),
     );
   }
+}
+
+/// الألوان المتبدّلة حسب الوضع (فاتح/ليلي). تُسجَّل كـ ThemeExtension في كل
+/// من [AppTheme.lightTheme] و[AppTheme.darkTheme]، وتُقرأ في الشاشات عبر
+/// `context.appColors`. لأنها تمرّ عبر `Theme.of(context)` تُعاد بناء كل
+/// عنصر يستعملها تلقائياً عند تبديل الثيم.
+@immutable
+class AppColors extends ThemeExtension<AppColors> {
+  final Color background;
+  final Color cardBackground;
+  final Color textPrimary;
+  final Color textSecondary;
+  final Color border;
+
+  const AppColors({
+    required this.background,
+    required this.cardBackground,
+    required this.textPrimary,
+    required this.textSecondary,
+    required this.border,
+  });
+
+  static const AppColors light = AppColors(
+    background: AppTheme._lightBackground,
+    cardBackground: AppTheme._lightSurface,
+    textPrimary: AppTheme._lightTextPrimary,
+    textSecondary: AppTheme._lightTextSecondary,
+    border: AppTheme._lightBorder,
+  );
+
+  static const AppColors dark = AppColors(
+    background: AppTheme._darkBackground,
+    cardBackground: AppTheme._darkSurface,
+    textPrimary: AppTheme._darkTextPrimary,
+    textSecondary: AppTheme._darkTextSecondary,
+    border: AppTheme._darkBorder,
+  );
+
+  @override
+  AppColors copyWith({
+    Color? background,
+    Color? cardBackground,
+    Color? textPrimary,
+    Color? textSecondary,
+    Color? border,
+  }) {
+    return AppColors(
+      background: background ?? this.background,
+      cardBackground: cardBackground ?? this.cardBackground,
+      textPrimary: textPrimary ?? this.textPrimary,
+      textSecondary: textSecondary ?? this.textSecondary,
+      border: border ?? this.border,
+    );
+  }
+
+  @override
+  AppColors lerp(ThemeExtension<AppColors>? other, double t) {
+    if (other is! AppColors) return this;
+    return AppColors(
+      background: Color.lerp(background, other.background, t)!,
+      cardBackground: Color.lerp(cardBackground, other.cardBackground, t)!,
+      textPrimary: Color.lerp(textPrimary, other.textPrimary, t)!,
+      textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
+      border: Color.lerp(border, other.border, t)!,
+    );
+  }
+}
+
+extension AppColorsContext on BuildContext {
+  /// الألوان المتبدّلة حسب الوضع الحالي للثيم.
+  AppColors get appColors =>
+      Theme.of(this).extension<AppColors>() ?? AppColors.light;
 }
