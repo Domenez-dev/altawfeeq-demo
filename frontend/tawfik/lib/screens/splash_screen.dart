@@ -47,7 +47,7 @@ class SplashScreen extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(80),
                     child: Image.asset(
-                      'assets/tawfiklogo.jpg',
+                      'assets/applogo.jpg',
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
@@ -87,7 +87,7 @@ class SplashScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 
                 const Text(
-                  'التوفيق',
+                  'Taoufik',
                   style: TextStyle(
                     fontSize: 48,
                     fontWeight: FontWeight.bold,

@@ -117,46 +117,118 @@ class TherapeuticGoalScreen extends StatelessWidget {
 class VocalIndicatorsInfoScreen extends StatelessWidget {
   const VocalIndicatorsInfoScreen({super.key});
 
-  static const _descriptions = {
-    'شدة الصوت': 'تعبّر عن مدى وضوح وقوة نبرة الصوت أثناء النطق.',
-    'المدة': 'القدرة على الحفاظ على نبرة صوتية ثابتة لأطول فترة ممكنة.',
-    'الطبقة الصوتية': 'استقرار التردد الأساسي للصوت وخلوّه من التذبذب غير الطبيعي.',
-    'الاضطراب (Jitter)': 'مدى انتظام الموجات الصوتية الفردية المتتالية.',
-  };
+  static const _categoryOrder = [kCatProsody, kCatPhonation, kCatExtra, kCatTemporal];
 
   @override
   Widget build(BuildContext context) {
     return MoreScaffold(
       title: 'المؤشرات الصوتية',
       child: Column(
-        children: kIndicatorNames.map((name) {
-          return _card(context,
-            child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // مقدمة موجزة
+          _card(context,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(color: AppTheme.primaryPurple.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
-                  child: Icon(indicatorIcon(name), color: AppTheme.primaryPurple, size: 22),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(name, style: _titleStyle(context)),
-                      const SizedBox(height: 4),
-                      Text(_descriptions[name] ?? '', style: _bodyStyle(context)),
-                    ],
-                  ),
+                Text('كيف نقرأ المؤشرات؟', style: _titleStyle(context)),
+                const SizedBox(height: 8),
+                Text(
+                  'يقيس التطبيق سبعة مؤشرات صوتية من تسجيل الحرف الممدود "آآآ"، ويقارنها بقيم '
+                  'مرجعية علمية لتحديد ما إذا كانت ضمن النطاق الطبيعي. المؤشرات الزمنية (معدل '
+                  'الكلام والتوقفات) مرجعية فقط لأنها تحتاج كلاماً متصلاً (جملة) وليس حرفاً ممدوداً.',
+                  style: _bodyStyle(context),
                 ),
               ],
             ),
-          );
-        }).toList(),
+          ),
+          for (final category in _categoryOrder) ...[
+            _categoryHeader(context, category),
+            ...kBiomarkers.where((b) => b.category == category).map((b) => _biomarkerCard(context, b)),
+          ],
+          // تحذير علمي حول مؤشرات إنتاج الصوت
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            margin: const EdgeInsets.only(top: 4),
+            decoration: BoxDecoration(
+              color: AppTheme.warning.withOpacity(0.10),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppTheme.warning.withOpacity(0.35)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.info_outline_rounded, color: AppTheme.warning, size: 20),
+                const SizedBox(width: 10),
+                Expanded(child: Text(kPhonationCaveat, style: _bodyStyle(context))),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 }
+
+Widget _categoryHeader(BuildContext context, String title) => Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 8, right: 4),
+      child: Row(
+        children: [
+          Container(width: 4, height: 18, decoration: BoxDecoration(color: AppTheme.primaryPurple, borderRadius: BorderRadius.circular(2))),
+          const SizedBox(width: 8),
+          Text(title, style: _titleStyle(context).copyWith(fontSize: 17)),
+        ],
+      ),
+    );
+
+Widget _biomarkerCard(BuildContext context, VocalBiomarker b) => _card(context,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(color: AppTheme.primaryPurple.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+                child: Icon(indicatorIcon(b.name), color: AppTheme.primaryPurple, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(child: Text(b.name, style: _titleStyle(context))),
+              // وسم يوضّح هل المؤشر مُقاس فعلياً أم مرجعي فقط
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: (b.measured ? AppTheme.success : AppTheme.warning).withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  b.measured ? 'يُقاس' : 'مرجعي',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, fontFamily: 'IBMPlexSansArabic', color: b.measured ? AppTheme.success : AppTheme.warning),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(b.description, style: _bodyStyle(context)),
+          const SizedBox(height: 10),
+          _metaRow(context, Icons.check_circle_outline_rounded, AppTheme.success, b.normalRange),
+          const SizedBox(height: 6),
+          _metaRow(context, Icons.rule_rounded, AppTheme.primaryPurple, b.decisionRule),
+        ],
+      ),
+    );
+
+Widget _metaRow(BuildContext context, IconData icon, Color color, String text) => Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 16, color: color),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(text, style: _bodyStyle(context).copyWith(fontSize: 13)),
+        ),
+      ],
+    );
 
 // ─── تذكيرات الجلسات ────────────────────────────────────────────────────────
 
@@ -317,18 +389,20 @@ class AboutScreen extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(height: 16),
-          Container(
-            width: 96,
-            height: 96,
-            decoration: BoxDecoration(
-              color: AppTheme.primaryPurple.withOpacity(0.1),
-              shape: BoxShape.circle,
+          // شعار التطبيق داخل التطبيق (يحمل اسم Taoufik)
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Image.asset(
+              'assets/inapplogo.jpeg',
+              height: 72,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) => Text(
+                'Taoufik',
+                style: _titleStyle(context).copyWith(fontSize: 28, color: AppTheme.primaryPurple),
+              ),
             ),
-            child: const Icon(Icons.graphic_eq_rounded, size: 48, color: AppTheme.primaryPurple),
           ),
-          const SizedBox(height: 16),
-          Text('التوفيق', style: _titleStyle(context).copyWith(fontSize: 24)),
-          const SizedBox(height: 4),
+          const SizedBox(height: 12),
           // الإصدار يُقرأ ديناميكياً من pubspec.yaml (الحقل version) عبر
           // package_info_plus. لتحديث الإصدار: زِد رقم النسخة في pubspec.yaml
           // بمقدار 0.0.1 مع كل تغيير جديد على التطبيق (مثال: 1.0.0 -> 1.0.1).
@@ -342,9 +416,29 @@ class AboutScreen extends StatelessWidget {
           const SizedBox(height: 24),
           _card(context,
             child: Text(
-              'تطبيق ذكي لمتابعة المؤشرات الصوتية، يساعد على تحليل الصوت واكتشاف العلامات المبكرة من خلال تسجيلات قصيرة للحرف المستمر "آآآ".',
+              'تطبيق Taoufik أداة ذكية للكشف المبكر عن مؤشرات الضعف الإدراكي البسيط (MCI) '
+              'ومرض ألزهايمر عبر تحليل الصوت. يسجّل المستخدم الحرف الممدود "آآآ" لبضع ثوانٍ، '
+              'فيستخرج التطبيق سبعة مؤشرات صوتية (الطبقة الصوتية وتباينها، الاضطراب Jitter، '
+              'اضطراب الشدة Shimmer، نسبة HNR، شدة الصوت، والمدة) ويصنّف النتيجة إلى: '
+              'سليم معرفياً (CU)، أو ضعف إدراكي بسيط (MCI)، أو مريض.',
               style: _bodyStyle(context),
               textAlign: TextAlign.center,
+            ),
+          ),
+          _card(context,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.medical_information_outlined, color: AppTheme.warning, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'تنبيه: هذا التطبيق أداة مساعدة للفحص المبدئي وليس تشخيصاً طبياً. '
+                    'يُرجى دائماً مراجعة مختص لتأكيد أي نتيجة.',
+                    style: _bodyStyle(context),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

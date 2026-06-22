@@ -49,6 +49,11 @@ def _make_features(quality: float) -> dict[str, float]:
     jitter = max(0.1, jitter + _rng.uniform(-0.12, 0.12))
     shimmer = max(0.1, shimmer + _rng.uniform(-0.25, 0.25))
 
+    # HNR: high (clean) when healthy, low (noisy) when pathological.
+    hnr = 8.0 + 17.0 * quality + _rng.uniform(-1.5, 1.5)
+    # F0 SD: stable (low) when healthy, unstable (high) when pathological.
+    f0_sd = max(1.0, 28.0 - 25.0 * quality + _rng.uniform(-2.0, 2.0))
+
     if quality > 0.5:
         intensity = _rng.uniform(64.0, 76.0)
         duration = _rng.uniform(4.0, 7.5)
@@ -58,8 +63,10 @@ def _make_features(quality: float) -> dict[str, float]:
 
     return {
         "f0_hz": f0,
+        "f0_sd_hz": f0_sd,
         "jitter_percent": jitter,
         "shimmer_percent": shimmer,
+        "hnr_db": hnr,
         "intensity_db": intensity,
         "duration_seconds": duration,
     }
@@ -76,8 +83,10 @@ def _build_session(user: User, recorded_at: datetime, quality: float, index: int
         recorded_at=recorded_at,
         duration_seconds=raw["duration_seconds"],
         f0_hz=raw["f0_hz"],
+        f0_sd_hz=raw["f0_sd_hz"],
         jitter_percent=raw["jitter_percent"],
         shimmer_percent=raw["shimmer_percent"],
+        hnr_db=raw["hnr_db"],
         intensity_db=raw["intensity_db"],
         overall_score=scores.overall_score,
         f0_score=scores.f0_score,
@@ -85,6 +94,8 @@ def _build_session(user: User, recorded_at: datetime, quality: float, index: int
         shimmer_score=scores.shimmer_score,
         intensity_score=scores.intensity_score,
         duration_score=scores.duration_score,
+        hnr_score=scores.hnr_score,
+        f0_sd_score=scores.f0_sd_score,
         classification=classification,
         feedback_text=feedback_text,
         audio_filename=f"seed-user{user.id}-session{index}.wav",

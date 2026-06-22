@@ -19,6 +19,12 @@ class VoiceResultScreen extends ConsumerWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
+    // التصنيف ثلاثي المستويات (سليم معرفياً / ضعف إدراكي بسيط / مريض) بالعربية.
+    final clsColor = classificationColor(result.classification, overallPercent: result.overallPercent);
+    final clsLabel = classificationLabelFor(result.classification, overallPercent: result.overallPercent);
+    final clsDesc = classificationDescriptionFor(result.classification, overallPercent: result.overallPercent);
+    final clsIcon = classificationIcon(result.classification, overallPercent: result.overallPercent);
+
     return Scaffold(
       backgroundColor: context.appColors.background,
       appBar: AppBar(
@@ -47,40 +53,58 @@ class VoiceResultScreen extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             children: [
-              const SizedBox(height: 32),
+              const SizedBox(height: 20),
 
-              // Success icon
+              // أيقونة دائرية بلون التصنيف
               Container(
-                width: 80,
-                height: 80,
+                width: 76,
+                height: 76,
                 decoration: BoxDecoration(
-                  color: AppTheme.success,
+                  color: clsColor,
                   shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(color: AppTheme.success.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))],
+                  boxShadow: [BoxShadow(color: clsColor.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))],
                 ),
-                child: const Icon(Icons.check_rounded, color: Colors.white, size: 48),
+                child: Icon(clsIcon, color: Colors.white, size: 44),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
+              // النتيجة المبدئية للفحص (بالعربية)
               Text(
-                'تمت الجلسة بنجاح',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: context.appColors.textPrimary, fontFamily: 'IBMPlexSansArabic'),
+                clsLabel,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold, color: clsColor, fontFamily: 'IBMPlexSansArabic'),
               ),
-              const SizedBox(height: 8),
-              Text('إجمالي التقدم', style: TextStyle(fontSize: 16, color: context.appColors.textSecondary, fontFamily: 'IBMPlexSansArabic')),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Text(
-                '${(result.overallPercent * 100).toInt()}%',
-                style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: AppTheme.primaryPurple, fontFamily: 'IBMPlexSansArabic'),
+                'النتيجة الإجمالية: ${(result.overallPercent * 100).toInt()}%',
+                style: TextStyle(fontSize: 15, color: context.appColors.textSecondary, fontFamily: 'IBMPlexSansArabic'),
+              ),
+
+              const SizedBox(height: 12),
+
+              // وصف موجز للتصنيف
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: clsColor.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: clsColor.withOpacity(0.25)),
+                ),
+                child: Text(
+                  clsDesc,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 13, color: context.appColors.textPrimary, fontFamily: 'IBMPlexSansArabic', height: 1.5),
+                ),
               ),
 
               if (recordingPath != null) ...[
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 RecordingPlayer(path: recordingPath),
               ],
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 20),
 
               // Results list
               Expanded(

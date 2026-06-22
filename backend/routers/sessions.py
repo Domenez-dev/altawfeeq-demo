@@ -12,7 +12,6 @@ from config import UPLOADS_DIR
 from database import get_db
 from models.session import CLASSIFICATION_LABELS_AR, Session
 from models.user import User
-from schemas.home import HomeIndicator
 from schemas.session import (
     CreateSessionRequest,
     DeleteSessionsRequest,
@@ -23,6 +22,7 @@ from schemas.session import (
     SessionResultResponse,
 )
 from services import classifier, feedback
+from services.indicators import build_indicators
 from utils.helpers import get_current_user
 
 router = APIRouter(prefix="/api/sessions", tags=["Sessions"])
@@ -40,28 +40,15 @@ def _to_frontend_session(s: Session) -> FrontendSessionResponse:
     date_str = f"{s.recorded_at.year} - {s.recorded_at.day:02d} {month_name}"
     time_str = f"{s.recorded_at.hour:02d}:{s.recorded_at.minute:02d}"
 
-    indicators = [
-        HomeIndicator(
-            name="شدة الصوت",
-            percent=s.intensity_score / 100.0,
-            status="جيد" if s.intensity_score >= 70.0 else "متوسط" if s.intensity_score >= 40.0 else "ضعيف",
-        ),
-        HomeIndicator(
-            name="المدة",
-            percent=s.duration_score / 100.0,
-            status="جيد" if s.duration_score >= 70.0 else "متوسط" if s.duration_score >= 40.0 else "ضعيف",
-        ),
-        HomeIndicator(
-            name="الطبقة الصوتية",
-            percent=s.f0_score / 100.0,
-            status="جيد" if s.f0_score >= 70.0 else "متوسط" if s.f0_score >= 40.0 else "ضعيف",
-        ),
-        HomeIndicator(
-            name="الاضطراب (Jitter)",
-            percent=s.jitter_score / 100.0,
-            status="جيد" if s.jitter_score >= 70.0 else "متوسط" if s.jitter_score >= 40.0 else "ضعيف",
-        ),
-    ]
+    indicators = build_indicators(
+        intensity_score=s.intensity_score,
+        duration_score=s.duration_score,
+        f0_score=s.f0_score,
+        jitter_score=s.jitter_score,
+        shimmer_score=s.shimmer_score,
+        hnr_score=s.hnr_score,
+        f0_sd_score=s.f0_sd_score,
+    )
 
     return FrontendSessionResponse(
         id=s.id,
@@ -119,11 +106,16 @@ def list_sessions(
 
 
 def _make_features(quality: float) -> dict[str, float]:
+    """Generate plausible raw acoustic features for a given quality level.
+
+    Mirrors seed.py so the demo POST /api/sessions endpoint exercises the same
+    band-based F0 scoring (quality 1.0 → centre of the healthy F0 band,
+    quality 0.0 → up near the abnormally-high bound) and includes HNR / F0 SD.
+    """
     quality = max(0.0, min(1.0, quality))
 
-    f0 = classifier.F0_BASELINE_ALZHEIMER_HZ + (
-        classifier.F0_BASELINE_NORMAL_HZ - classifier.F0_BASELINE_ALZHEIMER_HZ
-    ) * quality
+    healthy_f0 = (classifier.F0_PLATEAU_LOW_HZ + classifier.F0_PLATEAU_HIGH_HZ) / 2.0
+    f0 = healthy_f0 + (classifier.F0_HARD_HIGH_HZ - healthy_f0) * (1.0 - quality)
     jitter = classifier.JITTER_BASELINE_ALZHEIMER_PERCENT + (
         classifier.JITTER_BASELINE_NORMAL_PERCENT - classifier.JITTER_BASELINE_ALZHEIMER_PERCENT
     ) * quality
@@ -134,6 +126,8 @@ def _make_features(quality: float) -> dict[str, float]:
     f0 += random.uniform(-6.0, 6.0)
     jitter = max(0.1, jitter + random.uniform(-0.12, 0.12))
     shimmer = max(0.1, shimmer + random.uniform(-0.25, 0.25))
+    hnr = 8.0 + 17.0 * quality + random.uniform(-1.5, 1.5)
+    f0_sd = max(1.0, 28.0 - 25.0 * quality + random.uniform(-2.0, 2.0))
 
     if quality > 0.5:
         intensity = random.uniform(64.0, 76.0)
@@ -144,8 +138,10 @@ def _make_features(quality: float) -> dict[str, float]:
 
     return {
         "f0_hz": f0,
+        "f0_sd_hz": f0_sd,
         "jitter_percent": jitter,
         "shimmer_percent": shimmer,
+        "hnr_db": hnr,
         "intensity_db": intensity,
         "duration_seconds": duration,
     }
@@ -173,6 +169,8 @@ def create_session(
         shimmer_percent=features["shimmer_percent"],
         intensity_db=features["intensity_db"],
         duration_seconds=duration,
+        hnr_db=features["hnr_db"],
+        f0_sd_hz=features["f0_sd_hz"],
     )
 
     classification = classifier.classify(scores.overall_score)
@@ -184,8 +182,10 @@ def create_session(
         recorded_at=recorded_at,
         duration_seconds=duration,
         f0_hz=features["f0_hz"],
+        f0_sd_hz=features["f0_sd_hz"],
         jitter_percent=features["jitter_percent"],
         shimmer_percent=features["shimmer_percent"],
+        hnr_db=features["hnr_db"],
         intensity_db=features["intensity_db"],
         overall_score=scores.overall_score,
         f0_score=scores.f0_score,
@@ -193,6 +193,8 @@ def create_session(
         shimmer_score=scores.shimmer_score,
         intensity_score=scores.intensity_score,
         duration_score=scores.duration_score,
+        hnr_score=scores.hnr_score,
+        f0_sd_score=scores.f0_sd_score,
         classification=classification,
         feedback_text=feedback_text,
         audio_filename=f"user{current_user.id}-session-{int(recorded_at.timestamp())}.wav",
@@ -205,28 +207,15 @@ def create_session(
     month_name = MONTHS_AR.get(recorded_at.month, "")
     date_str = f"{recorded_at.year} - {month_name} {recorded_at.day:02d}"
 
-    indicators = [
-        HomeIndicator(
-            name="شدة الصوت",
-            percent=scores.intensity_score / 100.0,
-            status="جيد" if scores.intensity_score >= 70.0 else "متوسط" if scores.intensity_score >= 40.0 else "ضعيف",
-        ),
-        HomeIndicator(
-            name="المدة",
-            percent=scores.duration_score / 100.0,
-            status="جيد" if scores.duration_score >= 70.0 else "متوسط" if scores.duration_score >= 40.0 else "ضعيف",
-        ),
-        HomeIndicator(
-            name="الطبقة الصوتية",
-            percent=scores.f0_score / 100.0,
-            status="جيد" if scores.f0_score >= 70.0 else "متوسط" if scores.f0_score >= 40.0 else "ضعيف",
-        ),
-        HomeIndicator(
-            name="الاضطراب (Jitter)",
-            percent=scores.jitter_score / 100.0,
-            status="جيد" if scores.jitter_score >= 70.0 else "متوسط" if scores.jitter_score >= 40.0 else "ضعيف",
-        ),
-    ]
+    indicators = build_indicators(
+        intensity_score=scores.intensity_score,
+        duration_score=scores.duration_score,
+        f0_score=scores.f0_score,
+        jitter_score=scores.jitter_score,
+        shimmer_score=scores.shimmer_score,
+        hnr_score=scores.hnr_score,
+        f0_sd_score=scores.f0_sd_score,
+    )
 
     return SessionResultResponse(
         session_id=session.id,

@@ -73,6 +73,36 @@ SHIMMER_BASELINE_ALZHEIMER_PERCENT = 13.0
 # ============================================================
 # TUNABLE PARAMETER — adjust based on future clinical research
 # ============================================================
+# HNR — Harmonics-to-Noise Ratio (dB). HIGHER is better (more harmonic energy
+# relative to noise = a cleaner, healthier voice). >= NORMAL scores 100,
+# <= FLOOR scores 0, linear in between. Clinical reference: a healthy voice is
+# usually > 20 dB; below 20 dB is treated as suspect. NORMAL is set at 20 dB so
+# a clean voice scores high, and FLOOR is kept low (5 dB) so noisy but real
+# phone recordings are not crushed straight to 0.
+# Suggested range: normal [18 - 22], floor [4 - 8].
+# ============================================================
+HNR_BASELINE_NORMAL_DB = 20.0
+HNR_BASELINE_FLOOR_DB = 5.0
+
+# ============================================================
+# TUNABLE PARAMETER — adjust based on future clinical research
+# ============================================================
+# F0 SD — pitch variability (Hz) on the SUSTAINED vowel "آآآ". On a sustained
+# vowel a steady pitch is healthy, so here LOWER SD (more stable) is better and
+# a large SD reflects pitch instability/tremor. <= STABLE scores 100, >= UNSTABLE
+# scores 0, linear in between.
+# NOTE: this is the opposite framing from spontaneous/connected speech, where
+# *low* pitch variability (monotone, < ~20 Hz) is the suspect sign. That
+# connected-speech rule is presented as reference-only in the app because the
+# recording task here is a sustained vowel.
+# Suggested range: stable [2 - 5], unstable [25 - 40].
+# ============================================================
+F0_SD_BASELINE_STABLE_HZ = 3.0
+F0_SD_BASELINE_UNSTABLE_HZ = 30.0
+
+# ============================================================
+# TUNABLE PARAMETER — adjust based on future clinical research
+# ============================================================
 # Intensity (dB). Scored as a smooth peak: full credit at the ideal centre,
 # tapering linearly to 0 once the value is TOLERANCE dB away on either side.
 # This makes the subscore vary with the recording (a comfortable mid-level
@@ -97,12 +127,20 @@ DURATION_TOLERANCE_SECONDS = 5.0
 # ============================================================
 # TUNABLE PARAMETER — metric weights for overall score
 # ============================================================
-# Current weights: F0=0.30, Jitter=0.30, Shimmer=0.20, Intensity=0.10, Duration=0.10
-# These are assumptions. Adjust when more clinical data is available.
+# Seven acoustic biomarkers measured on the sustained vowel "آآآ". The
+# phonation/voice-quality measures (jitter, shimmer, HNR) carry the most weight
+# because they are the ones the sustained-vowel task captures most reliably.
+# The three TEMPORAL biomarkers from the literature (speech rate, pause
+# duration, pause ratio) need connected speech, so they are NOT scored here —
+# they are presented as reference-only in the app.
+# Weights sum to 1.0. When HNR / F0 SD are unavailable (e.g. an old recording),
+# their weight is redistributed proportionally over the remaining metrics.
 # ============================================================
-WEIGHT_F0 = 0.30
-WEIGHT_JITTER = 0.30
-WEIGHT_SHIMMER = 0.20
+WEIGHT_F0 = 0.18
+WEIGHT_F0_SD = 0.10
+WEIGHT_JITTER = 0.20
+WEIGHT_SHIMMER = 0.15
+WEIGHT_HNR = 0.17
 WEIGHT_INTENSITY = 0.10
 WEIGHT_DURATION = 0.10
 
@@ -124,7 +162,12 @@ SICK_THRESHOLD = 40.0
 
 @dataclass(frozen=True)
 class MetricScores:
-    """0-100 subscores for each acoustic metric, plus the composite score."""
+    """0-100 subscores for each acoustic metric, plus the composite score.
+
+    `hnr_score` and `f0_sd_score` are optional (None when the corresponding raw
+    feature was not available, e.g. recordings analysed before HNR/F0-SD
+    extraction was added) so the pipeline stays backward compatible.
+    """
 
     f0_score: float
     jitter_score: float
@@ -132,6 +175,8 @@ class MetricScores:
     intensity_score: float
     duration_score: float
     overall_score: float
+    hnr_score: float | None = None
+    f0_sd_score: float | None = None
 
 
 def _clamp(value: float, low: float = 0.0, high: float = 100.0) -> float:
@@ -194,8 +239,16 @@ def score_features(
     shimmer_percent: float,
     intensity_db: float,
     duration_seconds: float,
+    hnr_db: float | None = None,
+    f0_sd_hz: float | None = None,
 ) -> MetricScores:
-    """Compute per-metric 0-100 subscores and the weighted composite score."""
+    """Compute per-metric 0-100 subscores and the weighted composite score.
+
+    `hnr_db` and `f0_sd_hz` are optional. When either is omitted, its weight is
+    redistributed proportionally over the metrics that ARE present, so the
+    composite score stays on the same 0-100 scale regardless of how many
+    biomarkers were available.
+    """
     f0_score = _score_band(
         f0_hz, F0_PLATEAU_LOW_HZ, F0_PLATEAU_HIGH_HZ, F0_HARD_LOW_HZ, F0_HARD_HIGH_HZ
     )
@@ -208,13 +261,35 @@ def score_features(
     intensity_score = _score_peak(intensity_db, INTENSITY_IDEAL_CENTER_DB, INTENSITY_TOLERANCE_DB)
     duration_score = _score_peak(duration_seconds, DURATION_IDEAL_CENTER_SECONDS, DURATION_TOLERANCE_SECONDS)
 
-    overall_score = _clamp(
-        WEIGHT_F0 * f0_score
-        + WEIGHT_JITTER * jitter_score
-        + WEIGHT_SHIMMER * shimmer_score
-        + WEIGHT_INTENSITY * intensity_score
-        + WEIGHT_DURATION * duration_score
+    # HNR: higher dB is better (a clean voice); F0 SD: on a sustained vowel a
+    # lower (more stable) pitch is better. Both are optional.
+    hnr_score = (
+        _score_against_baseline(hnr_db, HNR_BASELINE_NORMAL_DB, HNR_BASELINE_FLOOR_DB)
+        if hnr_db is not None
+        else None
     )
+    f0_sd_score = (
+        _score_against_baseline(f0_sd_hz, F0_SD_BASELINE_STABLE_HZ, F0_SD_BASELINE_UNSTABLE_HZ)
+        if f0_sd_hz is not None
+        else None
+    )
+
+    # Build (score, weight) pairs only for metrics we actually have, then
+    # renormalise the weights so they always sum to 1.0.
+    weighted: list[tuple[float, float]] = [
+        (f0_score, WEIGHT_F0),
+        (jitter_score, WEIGHT_JITTER),
+        (shimmer_score, WEIGHT_SHIMMER),
+        (intensity_score, WEIGHT_INTENSITY),
+        (duration_score, WEIGHT_DURATION),
+    ]
+    if hnr_score is not None:
+        weighted.append((hnr_score, WEIGHT_HNR))
+    if f0_sd_score is not None:
+        weighted.append((f0_sd_score, WEIGHT_F0_SD))
+
+    total_weight = sum(w for _, w in weighted)
+    overall_score = _clamp(sum(s * w for s, w in weighted) / total_weight)
 
     return MetricScores(
         f0_score=f0_score,
@@ -222,6 +297,8 @@ def score_features(
         shimmer_score=shimmer_score,
         intensity_score=intensity_score,
         duration_score=duration_score,
+        hnr_score=hnr_score,
+        f0_sd_score=f0_sd_score,
         overall_score=overall_score,
     )
 

@@ -5,6 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 import models  # noqa: F401 — ensures all models are registered on Base before create_all
+from sqlalchemy import inspect, text
+
 from config import API_DESCRIPTION, API_TITLE, API_VERSION
 from database import Base, engine
 from routers import analysis, auth, reports, schedules, sessions, users, home
@@ -14,6 +16,37 @@ from schemas.user import UserResponse
 from utils.helpers import get_current_user
 
 Base.metadata.create_all(bind=engine)
+
+
+def _ensure_session_columns() -> None:
+    """Lightweight, idempotent migration for columns added after first deploy.
+
+    SQLAlchemy's create_all never ALTERs existing tables, so when a new nullable
+    column is added to the Session model an already-deployed database is missing
+    it. This adds any missing column with a plain ``ALTER TABLE ... ADD COLUMN``
+    (supported by both SQLite and PostgreSQL) so deploying the new code over an
+    existing DB does not require a manual migration. New columns are nullable,
+    so existing rows simply get NULL.
+    """
+    expected = {
+        "hnr_db": "FLOAT",
+        "f0_sd_hz": "FLOAT",
+        "hnr_score": "FLOAT",
+        "f0_sd_score": "FLOAT",
+    }
+    inspector = inspect(engine)
+    if "sessions" not in inspector.get_table_names():
+        return
+    existing = {col["name"] for col in inspector.get_columns("sessions")}
+    missing = {name: ddl for name, ddl in expected.items() if name not in existing}
+    if not missing:
+        return
+    with engine.begin() as conn:
+        for name, ddl in missing.items():
+            conn.execute(text(f"ALTER TABLE sessions ADD COLUMN {name} {ddl}"))
+
+
+_ensure_session_columns()
 
 app = FastAPI(title=API_TITLE, description=API_DESCRIPTION, version=API_VERSION)
 

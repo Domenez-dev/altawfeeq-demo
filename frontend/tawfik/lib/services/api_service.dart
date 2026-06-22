@@ -113,28 +113,35 @@ class ApiService {
       );
 
       final json = res.data as Map<String, dynamic>;
-      double score(String key) => (json[key] as num).toDouble();
 
       final recordedAt = DateTime.parse(json['recorded_at'] as String).toLocal();
       final month = _monthsAr[recordedAt.month] ?? '';
       final date = '${recordedAt.year} - $month ${recordedAt.day.toString().padLeft(2, '0')}';
 
-      final indicators = [
-        ('شدة الصوت', score('intensity_score')),
-        ('المدة', score('duration_score')),
-        ('الطبقة الصوتية', score('f0_score')),
-        ('الاضطراب (Jitter)', score('jitter_score')),
-      ].map((e) => IndicatorResult(
-            name: e.$1,
-            percent: e.$2 / 100.0,
-            status: _statusFor(e.$2),
-          )).toList();
+      // نبني قائمة المؤشرات من كل الدرجات المتوفرة في الرد. shimmer متوفّر دائماً،
+      // أما hnr_score و f0_sd_score فقد يغيبان (خادم قديم) فنتجاوزهما بأمان.
+      final indicators = <IndicatorResult>[];
+      void addIndicator(String name, String key) {
+        final raw = json[key];
+        if (raw == null) return;
+        final s = (raw as num).toDouble();
+        indicators.add(IndicatorResult(name: name, percent: s / 100.0, status: _statusFor(s)));
+      }
+
+      addIndicator('الطبقة الصوتية', 'f0_score');
+      addIndicator('تباين الطبقة (F0 SD)', 'f0_sd_score');
+      addIndicator('الاضطراب (Jitter)', 'jitter_score');
+      addIndicator('اضطراب الشدة (Shimmer)', 'shimmer_score');
+      addIndicator('نسبة HNR', 'hnr_score');
+      addIndicator('شدة الصوت', 'intensity_score');
+      addIndicator('المدة', 'duration_score');
 
       return SessionResult(
         sessionId: json['id'] as int,
         date: date,
-        overallPercent: score('overall_score') / 100.0,
+        overallPercent: (json['overall_score'] as num).toDouble() / 100.0,
         indicators: indicators,
+        classification: json['classification'] as String?,
       );
     } on DioException catch (e) {
       // الخادم يُرجع {detail, code} على الأخطاء 422؛ نمررها كرسالة عربية.

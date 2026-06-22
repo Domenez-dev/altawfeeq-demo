@@ -2,7 +2,7 @@ name: tawfik
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # App version — single source of truth, shown dynamically in the "About" screen
 # via package_info_plus. BUMP RULE: increase the version by 0.0.1 on every new
 # change to the app (e.g. 1.0.0 -> 1.0.1), and increment the +build number too.
-version: 1.0.3+4
+version: 2.0.0+5
 
 environment:
   sdk: ^3.10.8
@@ -47,13 +47,13 @@ dependencies:
   file_picker: ^8.0.0
   open_filex: ^4.4.0
   flutter_tts: ^4.2.5
-  image_picker: ^1.0.7  # لاختيار الصور من الجهاز
+  image_picker: ^1.0.7 # لاختيار الصور من الجهاز
   fl_chart: ^0.68.0
   percent_indicator: ^3.4.0
   flutter_riverpod: ^2.6.1
   dio: ^5.7.0
-  record: ^7.1.0  # تسجيل الصوت من الميكروفون (path_provider مُعرّف بالأعلى لحفظ التسجيل المؤقت)
-  audioplayers: ^6.1.0  # إعادة تشغيل التسجيل المحفوظ
+  record: ^7.1.0 # تسجيل الصوت من الميكروفون (path_provider مُعرّف بالأعلى لحفظ التسجيل المؤقت)
+  audioplayers: ^6.1.0 # إعادة تشغيل التسجيل المحفوظ
   package_info_plus: ^9.0.1
 dev_dependencies:
   flutter_test:
@@ -73,7 +73,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -81,6 +80,8 @@ flutter:
 
   # Assets
   assets:
+    - assets/applogo.jpg # الشعار الرئيسي (أيقونة + شاشة البداية)
+    - assets/inapplogo.jpeg # شعار داخل التطبيق (يحمل اسم Taoufik)
     - assets/tawfiklogo.jpg
     - assets/voicetest.jpg
     - assets/smarthelthwatch.jpg
@@ -110,14 +111,14 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: false
-  image_path: "assets/tawfiklogo.jpg"
+  image_path: "assets/applogo.jpg"
   adaptive_icon_background: "#FFFFFF"
-  adaptive_icon_foreground: "assets/tawfiklogo.jpg"
+  adaptive_icon_foreground: "assets/applogo.jpg"
 
 # Flutter Native Splash configuration
 flutter_native_splash:
   color: "#FFFFFF"
-  image: assets/tawfiklogo.jpg
+  image: assets/applogo.jpg
   android: true
   ios: false
   web: false

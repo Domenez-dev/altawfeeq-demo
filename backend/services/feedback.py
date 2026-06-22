@@ -21,14 +21,16 @@ from services.classifier import MetricScores
 # ============================================================
 CONCERN_THRESHOLD = 50.0
 
-_F0_REMARK = "طبقة الصوت أعلى من المعدل الطبيعي"
-_JITTER_REMARK = "يُلاحظ ارتفاع في خشونة الصوت، يُنصح بمتابعة الجلسات بانتظام"
-_SHIMMER_REMARK = "يُلاحظ عدم استقرار في شدة الصوت، يُفضل تكرار التسجيل في بيئة هادئة"
+_F0_REMARK = "طبقة الصوت خارج المعدل الطبيعي"
+_F0_SD_REMARK = "يُلاحظ تذبذب في ثبات نبرة الصوت أثناء نطق الحرف الممدود"
+_JITTER_REMARK = "يُلاحظ ارتفاع في خشونة الصوت (Jitter)، يُنصح بمتابعة الجلسات بانتظام"
+_SHIMMER_REMARK = "يُلاحظ عدم استقرار في شدة الصوت (Shimmer)، يُفضل تكرار التسجيل في بيئة هادئة"
+_HNR_REMARK = "نقاء الصوت (HNR) أقل من المعتاد، أكثِر من شرب الماء وتجنّب التسجيل أثناء البحّة أو التعب"
 _INTENSITY_REMARK = "شدة الصوت أثناء التسجيل غير ضمن المعدل المعتاد، حاول التحدث بصوت طبيعي وواضح"
 _DURATION_REMARK = "مدة التسجيل قصيرة، حاول الإطالة في الجلسة القادمة"
 
-_HEALTHY_REMARK = "صوتك ضمن النطاق الطبيعي، استمر في المتابعة"
-_AT_RISK_REMARK = "هناك بعض المؤشرات التي تستحق الانتباه، يُنصح بإجراء جلسات منتظمة ومتابعة طبيب مختص"
+_HEALTHY_REMARK = "المؤشرات الصوتية ضمن النطاق الطبيعي (سليم معرفياً)، استمر في المتابعة"
+_AT_RISK_REMARK = "بعض المؤشرات تشير إلى احتمال ضعف إدراكي بسيط (MCI)، يُنصح بإجراء جلسات منتظمة ومتابعة طبيب مختص"
 _SICK_REMARK = "المؤشرات الصوتية تستدعي اهتماماً أكبر، يُرجى مراجعة مختص في أقرب وقت ممكن"
 
 
@@ -38,10 +40,14 @@ def build_feedback_text(scores: MetricScores, classification: Classification) ->
 
     if scores.f0_score < CONCERN_THRESHOLD:
         remarks.append(_F0_REMARK)
+    if scores.f0_sd_score is not None and scores.f0_sd_score < CONCERN_THRESHOLD:
+        remarks.append(_F0_SD_REMARK)
     if scores.jitter_score < CONCERN_THRESHOLD:
         remarks.append(_JITTER_REMARK)
     if scores.shimmer_score < CONCERN_THRESHOLD:
         remarks.append(_SHIMMER_REMARK)
+    if scores.hnr_score is not None and scores.hnr_score < CONCERN_THRESHOLD:
+        remarks.append(_HNR_REMARK)
     if scores.intensity_score < CONCERN_THRESHOLD:
         remarks.append(_INTENSITY_REMARK)
     if scores.duration_score < CONCERN_THRESHOLD:

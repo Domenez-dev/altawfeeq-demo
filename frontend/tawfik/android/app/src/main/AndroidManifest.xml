@@ -4,7 +4,7 @@
     <!-- الوصول إلى الـ backend عبر الشبكة -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="التوفيق"
+        android:label="Taoufik"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"><!-- يسمح بـ HTTP (غير المشفّر) نحو خادم التطوير على الشبكة المحلية -->

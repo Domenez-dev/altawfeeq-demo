@@ -6,11 +6,16 @@ class SessionResult {
   final double overallPercent;        // 0.0 → 1.0
   final List<IndicatorResult> indicators;
 
+  /// مفتاح التصنيف القادم من الخادم: healthy | at_risk | sick.
+  /// يُترجَم للعرض عبر [classificationLabelFor]. قد يكون null لجلسات قديمة.
+  final String? classification;
+
   const SessionResult({
     required this.sessionId,
     required this.date,
     required this.overallPercent,
     required this.indicators,
+    this.classification,
   });
 
   factory SessionResult.fromJson(Map<String, dynamic> json) {
@@ -21,6 +26,7 @@ class SessionResult {
       indicators: (json['indicators'] as List<dynamic>)
           .map((e) => IndicatorResult.fromJson(e as Map<String, dynamic>))
           .toList(),
+      classification: json['classification'] as String?,
     );
   }
 
@@ -29,5 +35,6 @@ class SessionResult {
     'date': date,
     'overall_percent': overallPercent,
     'indicators': indicators.map((e) => e.toJson()).toList(),
+    'classification': classification,
   };
 }

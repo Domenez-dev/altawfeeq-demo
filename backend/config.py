@@ -17,16 +17,17 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # one week, convenient for an MVP/prototype
 
 # API metadata
-API_TITLE = "التوفيق (Al-Tawfeeq) API"
+API_TITLE = "Taoufik API"
 API_DESCRIPTION = (
-    "Backend API for التوفيق — a voice-based Alzheimer's screening tool. "
-    "Analyzes sustained vowel recordings using Praat to extract acoustic "
-    "biomarkers (F0, jitter, shimmer, intensity, duration) and produces a "
-    "composite vocal health score with Arabic feedback."
+    "Backend API for Taoufik — a voice-based MCI / Alzheimer's screening tool. "
+    "Analyzes sustained vowel ('آآآ') recordings using Praat to extract seven "
+    "acoustic biomarkers (F0, F0 SD, jitter, shimmer, HNR, intensity, duration) "
+    "and produces a composite vocal-health score plus a 3-way screening "
+    "classification (CU / MCI / مريض) with Arabic feedback."
 )
 # Backend / API version — single source of truth. It is passed to the FastAPI
 # app (see main.py) so it shows up in the OpenAPI schema and /docs, and is also
 # returned by the GET /version endpoint.
 # BUMP RULE: increase this version by 0.0.1 on every new change to the backend
 # or API (e.g. 0.1.0 -> 0.1.1).
-API_VERSION = "0.1.6"
+API_VERSION = "0.2.0"

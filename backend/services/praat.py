@@ -1,13 +1,15 @@
 """Acoustic feature extraction using Praat (via parselmouth).
 
 Given a clean WAV recording of a sustained vowel ("آآآ"), this module extracts
-the five acoustic biomarkers used by services/classifier.py:
+the acoustic biomarkers used by services/classifier.py:
 
   1. F0 (fundamental frequency, mean, Hz)
-  2. Jitter (local, %)
-  3. Shimmer (local, %)
-  4. Intensity (mean, dB)
-  5. Duration (seconds)
+  2. F0 SD (pitch variability / stability, Hz)
+  3. Jitter (local, %)
+  4. Shimmer (local, %)
+  5. HNR (harmonics-to-noise ratio, mean, dB)
+  6. Intensity (mean, dB)
+  7. Duration (seconds)
 
 Every parameter below that influences the extracted values in a clinically
 meaningful way is called out with a TUNABLE PARAMETER block — these are the
@@ -132,8 +134,10 @@ class AcousticFeatures:
 
     duration_seconds: float
     f0_hz: float
+    f0_sd_hz: float          # standard deviation of voiced F0 (pitch stability)
     jitter_percent: float
     shimmer_percent: float
+    hnr_db: float            # harmonics-to-noise ratio (mean, dB)
     intensity_db: float
 
 
@@ -201,6 +205,9 @@ def extract_features(wav_path: Path) -> AcousticFeatures:
                 reason="no_voice",
             )
         f0_hz = float(np.mean(voiced_frequencies))
+        # Pitch variability (SD of the voiced F0 contour). On a sustained vowel
+        # a small SD means a stable pitch; a large SD reflects instability/tremor.
+        f0_sd_hz = float(np.std(voiced_frequencies)) if voiced_frequencies.size > 1 else 0.0
 
         # --- Jitter & shimmer (require a PointProcess derived from the
         # sound + its pitch contour — this is the standard Praat recipe for
@@ -230,6 +237,20 @@ def extract_features(wav_path: Path) -> AcousticFeatures:
         jitter_percent = float(jitter_local) * 100.0
         shimmer_percent = float(shimmer_local) * 100.0
 
+        # --- HNR (Harmonics-to-Noise Ratio) ------------------------------
+        # Standard Praat recipe: cross-correlation harmonicity, then the mean
+        # over the (mostly voiced) sustained vowel. A clean voice gives a high
+        # HNR; breathy/noisy phonation lowers it.
+        harmonicity = call(
+            trimmed, "To Harmonicity (cc)", PITCH_TIME_STEP_SECONDS, PITCH_FLOOR_HZ, 0.1, 1.0
+        )
+        hnr_db = call(harmonicity, "Get mean", 0.0, 0.0)
+        if hnr_db is None or (isinstance(hnr_db, float) and np.isnan(hnr_db)):
+            # No reliable harmonicity (e.g. effectively unvoiced) — treat as a
+            # very poor ratio rather than failing the whole analysis.
+            hnr_db = 0.0
+        hnr_db = float(hnr_db)
+
         # --- Intensity ---------------------------------------------------
         intensity = trimmed.to_intensity(minimum_pitch=PITCH_FLOOR_HZ)
         intensity_db = float(call(intensity, "Get mean", 0.0, 0.0, "energy"))
@@ -242,7 +263,9 @@ def extract_features(wav_path: Path) -> AcousticFeatures:
     return AcousticFeatures(
         duration_seconds=duration_seconds,
         f0_hz=f0_hz,
+        f0_sd_hz=f0_sd_hz,
         jitter_percent=jitter_percent,
         shimmer_percent=shimmer_percent,
+        hnr_db=hnr_db,
         intensity_db=intensity_db,
     )

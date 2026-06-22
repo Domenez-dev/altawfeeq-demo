@@ -165,15 +165,18 @@ async def analyze_recording(
 
     logger.info(
         "ANALYZE raw features | upload=%s (%d bytes, type=%s) wav=%s | "
-        "duration=%.3fs f0=%.2fHz jitter=%.4f%% shimmer=%.4f%% intensity=%.2fdB",
+        "duration=%.3fs f0=%.2fHz f0_sd=%.2fHz jitter=%.4f%% shimmer=%.4f%% "
+        "hnr=%.2fdB intensity=%.2fdB",
         file.filename,
         len(raw_bytes),
         file.content_type,
         wav_path.name,
         features.duration_seconds,
         features.f0_hz,
+        features.f0_sd_hz,
         features.jitter_percent,
         features.shimmer_percent,
+        features.hnr_db,
         features.intensity_db,
     )
 
@@ -183,6 +186,8 @@ async def analyze_recording(
         shimmer_percent=features.shimmer_percent,
         intensity_db=features.intensity_db,
         duration_seconds=features.duration_seconds,
+        hnr_db=features.hnr_db,
+        f0_sd_hz=features.f0_sd_hz,
     )
     classification = classifier.classify(scores.overall_score)
     feedback_text = feedback.build_feedback_text(scores, classification)
@@ -192,8 +197,10 @@ async def analyze_recording(
         recorded_at=datetime.now(timezone.utc),
         duration_seconds=features.duration_seconds,
         f0_hz=features.f0_hz,
+        f0_sd_hz=features.f0_sd_hz,
         jitter_percent=features.jitter_percent,
         shimmer_percent=features.shimmer_percent,
+        hnr_db=features.hnr_db,
         intensity_db=features.intensity_db,
         overall_score=scores.overall_score,
         f0_score=scores.f0_score,
@@ -201,6 +208,8 @@ async def analyze_recording(
         shimmer_score=scores.shimmer_score,
         intensity_score=scores.intensity_score,
         duration_score=scores.duration_score,
+        hnr_score=scores.hnr_score,
+        f0_sd_score=scores.f0_sd_score,
         classification=classification,
         feedback_text=feedback_text,
         audio_filename=original_path.name,
@@ -259,41 +268,90 @@ def get_indicator_detail(
     )
     sessions.reverse()
 
+    name_l = indicator_name.lower()
+
+    # Decide which biomarker the requested name refers to. Order matters:
+    # shimmer's Arabic name ("اضطراب الشدة") also contains "اضطراب" and "شدة",
+    # so it must be checked before jitter and intensity.
+    def _kind(name: str, low: str) -> str:
+        if "shimmer" in low or "الشدة" in name:
+            return "shimmer"
+        if "hnr" in low or "التوافقي" in name or "الضجيج" in name:
+            return "hnr"
+        if "f0 sd" in low or "تباين" in name:
+            return "f0_sd"
+        if "jitter" in low or "الاضطراب" in name:
+            return "jitter"
+        if "intensity" in low or "شدة" in name:
+            return "intensity"
+        if "duration" in low or "المدة" in name:
+            return "duration"
+        if "الطبقة" in name or "pitch" in low or "f0" in low:
+            return "f0"
+        return "overall"
+
+    kind = _kind(indicator_name, name_l)
+
+    def _value(s: Session) -> float:
+        return {
+            "shimmer": s.shimmer_score,
+            "hnr": s.hnr_score if s.hnr_score is not None else s.overall_score,
+            "f0_sd": s.f0_sd_score if s.f0_sd_score is not None else s.overall_score,
+            "jitter": s.jitter_score,
+            "intensity": s.intensity_score,
+            "duration": s.duration_score,
+            "f0": s.f0_score,
+        }.get(kind, s.overall_score)
+
     history = []
     for s in sessions:
         date_str = f"{s.recorded_at.day:02d}/{s.recorded_at.month:02d}"
+        history.append(IndicatorDataPointResponse(date=date_str, value=_value(s)))
 
-        # Select score based on the requested indicator
-        if "شدة" in indicator_name or "intensity" in indicator_name.lower():
-            val = s.intensity_score
-        elif "المدة" in indicator_name or "duration" in indicator_name.lower():
-            val = s.duration_score
-        elif "الطبقة" in indicator_name or "pitch" in indicator_name.lower() or "f0" in indicator_name.lower():
-            val = s.f0_score
-        elif "الاضطراب" in indicator_name or "jitter" in indicator_name.lower():
-            val = s.jitter_score
-        else:
-            val = s.overall_score
-
-        history.append(IndicatorDataPointResponse(date=date_str, value=val))
-
-    # Provide helpful descriptions and suggestions in Arabic
-    if "شدة" in indicator_name or "intensity" in indicator_name.lower():
-        natural_range = "60% - 90%"
-        analysis_txt = "شدة الصوت تعبر عن مدى وضوح وقوة نبرة الصوت. مستواك مستقر بشكل عام."
-        results_txt = "حاول التحدث في بيئة هادئة وبصوت ثابت ومستمر لتدريب عضلات النطق."
-    elif "المدة" in indicator_name or "duration" in indicator_name.lower():
-        natural_range = "3 - 8 ثواني"
-        analysis_txt = "المدة تعبر عن القدرة على التحكم في هواء الزفير والمحافظة على النبرة الصوتية."
-        results_txt = "تدرب على أخذ نفس عميق قبل بدء النطق، للمحافظة على طول واستقرار النبرة."
-    elif "الطبقة" in indicator_name or "pitch" in indicator_name.lower() or "f0" in indicator_name.lower():
-        natural_range = "70% - 100%"
-        analysis_txt = "الطبقة الصوتية تعكس استقرار التردد الأساسي للصوت وخلوه من التذبذب غير الطبيعي."
-        results_txt = "قم بتمارين تمديد الصوت بلطف وتجنب إجهاد حنجرتك وأوتارك الصوتية."
-    else:
-        natural_range = "60% - 90%"
-        analysis_txt = "مؤشر الاضطراب (Jitter) يقيس مدى انتظام الموجات الصوتية الفردية."
-        results_txt = "الاسترخاء والترطيب الجيد للحلق يساعدان كثيراً في خفض اضطراب نبرة الصوت."
+    # Provide helpful descriptions and suggestions in Arabic per biomarker.
+    _info = {
+        "intensity": (
+            "70 - 80 dB",
+            "شدة الصوت تعبّر عن مدى وضوح وقوة نبرة الصوت. مستواك مستقر بشكل عام.",
+            "حاول التحدث في بيئة هادئة وبصوت ثابت ومستمر لتدريب عضلات النطق.",
+        ),
+        "duration": (
+            "3 - 8 ثواني",
+            "المدة تعبّر عن القدرة على التحكم في هواء الزفير والمحافظة على النبرة الصوتية.",
+            "تدرّب على أخذ نفس عميق قبل بدء النطق للمحافظة على طول واستقرار النبرة.",
+        ),
+        "f0": (
+            "الرجال 120 - 180 هرتز / النساء 220 - 300 هرتز",
+            "الطبقة الصوتية (F0) تعكس التردد الأساسي للصوت. عدم استقرارها قد يكون مؤشراً مبكراً.",
+            "قم بتمارين تمديد الصوت بلطف وتجنّب إجهاد حنجرتك وأوتارك الصوتية.",
+        ),
+        "f0_sd": (
+            "تباين منخفض ومستقر على الحرف الممدود",
+            "تباين الطبقة (F0 SD) يقيس ثبات نبرة الصوت أثناء نطق \"آآآ\". التذبذب الكبير يدل على عدم الاستقرار.",
+            "حافظ على نبرة واحدة ثابتة دون رفع أو خفض الصوت أثناء التسجيل.",
+        ),
+        "jitter": (
+            "أقل من 1%",
+            "اضطراب التردد (Jitter) يقيس مدى انتظام دورات الموجة الصوتية المتتالية. القيمة المرتفعة (> 1%) تُعدّ مشتبهاً بها.",
+            "الاسترخاء والترطيب الجيد للحلق يساعدان كثيراً في خفض اضطراب نبرة الصوت.",
+        ),
+        "shimmer": (
+            "أقل من 4%",
+            "اضطراب الشدة (Shimmer) يقيس ثبات شدة الصوت من دورة لأخرى. القيمة المرتفعة (> 4%) تُعدّ مشتبهاً بها.",
+            "كرّر التسجيل في بيئة هادئة وبمستوى صوت ثابت ومريح.",
+        ),
+        "hnr": (
+            "أكبر من 20 dB",
+            "نسبة التوافقيات إلى الضجيج (HNR) تقيس نقاء الصوت. القيمة المنخفضة (< 20 dB) تعني صوتاً أكثر ضجيجاً.",
+            "اشرب الماء بانتظام وتجنّب التسجيل أثناء البحّة أو التعب لرفع نقاء الصوت.",
+        ),
+        "overall": (
+            "60% - 90%",
+            "المؤشر العام يلخّص جميع المؤشرات الصوتية في نتيجة واحدة.",
+            "الانتظام في الجلسات يساعد على متابعة تطوّر المؤشرات بدقة أكبر.",
+        ),
+    }
+    natural_range, analysis_txt, results_txt = _info.get(kind, _info["overall"])
 
     return IndicatorDetailResponse(
         name=indicator_name,

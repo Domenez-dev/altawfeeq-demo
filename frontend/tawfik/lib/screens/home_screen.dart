@@ -145,73 +145,20 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: Column(
           children: [
-            // Logo Container
-            Container(
-              width: 90,
-              height: 90,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    AppTheme.primaryPurple,
-                    AppTheme.primaryPurple.withOpacity(0.8),
-                  ],
+            // شعار التطبيق داخل التطبيق (in app logo) — يحمل اسم Taoufik
+            Image.asset(
+              'assets/inapplogo.jpeg',
+              height: 64,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) => const Text(
+                'Taoufik',
+                style: TextStyle(
+                  fontSize: 34,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.primaryPurple,
+                  fontFamily: 'IBMPlexSansArabic',
+                  letterSpacing: 0.5,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.primaryPurple.withOpacity(0.3),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Container(
-                margin: const EdgeInsets.all(3),
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                ),
-                child: ClipOval(
-                  child: Image.asset(
-                    'assets/tawfiklogo.jpg',
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              AppTheme.primaryPurple,
-                              AppTheme.primaryPurple.withOpacity(0.8),
-                            ],
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.health_and_safety_rounded,
-                          color: Colors.white,
-                          size: 44,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // App Name
-            const Text(
-              'التوفيق',
-              style: TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.primaryPurple,
-                fontFamily: 'IBMPlexSansArabic',
-                letterSpacing: 0.5,
-                height: 1.2,
               ),
             ),
             const SizedBox(height: 8),

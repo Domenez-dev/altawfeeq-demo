@@ -17,15 +17,19 @@ class SessionResponse(BaseModel):
     jitter_percent: float
     shimmer_percent: float
     intensity_db: float
+    hnr_db: float | None = None
+    f0_sd_hz: float | None = None
     overall_score: float
     f0_score: float
     jitter_score: float
     shimmer_score: float
     intensity_score: float
     duration_score: float
+    hnr_score: float | None = None
+    f0_sd_score: float | None = None
     classification: Classification
     classification_label: str = Field(
-        ..., description="Arabic display label for the classification (معاف / في طريق المرض / مريض)"
+        ..., description="Arabic display label for the classification (سليم معرفياً (CU) / ضعف إدراكي بسيط (MCI) / مريض)"
     )
     feedback_text: str
     audio_filename: str

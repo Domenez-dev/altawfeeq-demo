@@ -7,7 +7,8 @@ from sqlalchemy.orm import Session as DBSession
 from database import get_db
 from models.session import Session
 from models.user import User
-from schemas.home import HomeResponse, HomeIndicator
+from schemas.home import HomeResponse
+from services.indicators import build_indicators
 from utils.helpers import get_current_user
 
 router = APIRouter(prefix="/api/home", tags=["Home"])
@@ -39,39 +40,27 @@ def get_home_data(
 
     if latest_session:
         # Map 100-scale subscores to 0.0-1.0 percentages
-        indicators = [
-            HomeIndicator(
-                name="شدة الصوت",
-                percent=latest_session.intensity_score / 100.0,
-                status="جيد" if latest_session.intensity_score >= 70.0 else "متوسط" if latest_session.intensity_score >= 40.0 else "ضعيف",
-            ),
-            HomeIndicator(
-                name="المدة",
-                percent=latest_session.duration_score / 100.0,
-                status="جيد" if latest_session.duration_score >= 70.0 else "متوسط" if latest_session.duration_score >= 40.0 else "ضعيف",
-            ),
-            HomeIndicator(
-                name="الطبقة الصوتية",
-                percent=latest_session.f0_score / 100.0,
-                status="جيد" if latest_session.f0_score >= 70.0 else "متوسط" if latest_session.f0_score >= 40.0 else "ضعيف",
-            ),
-            HomeIndicator(
-                name="الاضطراب (Jitter)",
-                percent=latest_session.jitter_score / 100.0,
-                status="جيد" if latest_session.jitter_score >= 70.0 else "متوسط" if latest_session.jitter_score >= 40.0 else "ضعيف",
-            ),
-        ]
+        indicators = build_indicators(
+            intensity_score=latest_session.intensity_score,
+            duration_score=latest_session.duration_score,
+            f0_score=latest_session.f0_score,
+            jitter_score=latest_session.jitter_score,
+            shimmer_score=latest_session.shimmer_score,
+            hnr_score=latest_session.hnr_score,
+            f0_sd_score=latest_session.f0_sd_score,
+        )
         # Count indicators that are not failing ("ضعيف") as completed
         completed_count = sum(1 for ind in indicators if ind.status in ("جيد", "متوسط"))
         today_progress = latest_session.overall_score / 100.0 if has_session_today else 0.0
     else:
         # Default empty state if user has no sessions recorded at all
-        indicators = [
-            HomeIndicator(name="شدة الصوت", percent=0.0, status="ضعيف"),
-            HomeIndicator(name="المدة", percent=0.0, status="ضعيف"),
-            HomeIndicator(name="الطبقة الصوتية", percent=0.0, status="ضعيف"),
-            HomeIndicator(name="الاضطراب (Jitter)", percent=0.0, status="ضعيف"),
-        ]
+        indicators = build_indicators(
+            intensity_score=0.0,
+            duration_score=0.0,
+            f0_score=0.0,
+            jitter_score=0.0,
+            shimmer_score=0.0,
+        )
         completed_count = 0
         today_progress = 0.0
 
@@ -79,6 +68,6 @@ def get_home_data(
         user_name=current_user.name,
         today_progress=today_progress,
         completed_indicators=completed_count,
-        total_indicators=4,
+        total_indicators=len(indicators),
         indicators=indicators,
     )
